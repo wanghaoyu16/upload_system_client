@@ -3,14 +3,7 @@
 
   const API = window.electronAPI;
   const DEFAULT_PROBE_URLS = [
-    'http://<请在此处输入内网IP地址1>',
-    'http://<请在此处输入IP地址2>',
-    'http://<请在此处输入IP地址3>',
-    'http://<请在此处输入IP地址4>',
-    'http://<请在此处输入IP地址5>',
-    'http://<请在此处输入IP地址1>',
-    'http://<请在此处输入IP地址2>',
-    'http://<请在此处输入IP地址3>',
+    'http://当前为离线版本，请到github上git仓库根据README手动配置服务器',
     'http://127.0.0.1'
   ];
   let BACKENDS = [...DEFAULT_PROBE_URLS];
