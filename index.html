@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>作业上传系统</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="static/css/fontawesome-all.min.css">
+  <link rel="stylesheet" href="static/css/fontawesome.css">
+  <link rel="stylesheet" href="static/cropper/cropper.min.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "./js/three/build/three.module.js",
+    "three/addons/": "./js/three/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body class="splash-active">
+
+<style>
+.splash-ring-fg { fill: none; stroke: #3b82f6; stroke-width: 4; stroke-linecap: round; }
+</style>
+
+<div id="splash-screen">
+  <div class="splash-content">
+    <svg id="splash-ring" viewBox="0 0 200 200" style="width:200px;height:200px;position:absolute;top:0;left:0;">
+      <circle class="splash-ring-fg" id="splash-ring-fg" cx="100" cy="100" r="88" transform="rotate(-90 100 100)" stroke-dasharray="553" stroke-dashoffset="553"/>
+    </svg>
+    <img src="icon.ico" class="splash-logo" alt="Logo">
+    <video id="splash-video" class="splash-media" playsinline style="display:none;"></video>
+    <img id="splash-image" class="splash-media" style="display:none;" alt="">
+  </div>
+  <button id="splash-skip-btn" class="splash-skip-btn" style="display:none;" title="跳过 (ESC)"><i class="fa-solid fa-forward-step"></i> 跳过</button>
+</div>
+
+<div id="app">
+  <div id="titlebar">
+    <div class="titlebar-left">
+      <button class="titlebar-btn" id="btn-back" title="后退" disabled><i class="fa-solid fa-arrow-left"></i></button>
+      <button class="titlebar-btn" id="btn-forward" title="前进" disabled><i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+    <div class="titlebar-center" id="titlebar-title"><span id="titlebar-text">作业上传系统</span> <button class="titlebar-btn" id="btn-edit-title" title="修改标题" style="width:22px;height:22px;font-size:10px;"><i class="fa-solid fa-pen"></i></button></div>
+    <div class="titlebar-right">
+      <button class="titlebar-btn" id="update-reload-btn" title="重新加载以更新" style="display:none">
+        <i class="fa-solid fa-rotate"></i> 重新加载以更新
+      </button>
+      <button class="titlebar-btn weather-titlebar-btn" id="weather-btn" title="天气">
+        <i class="fa-solid fa-cloud-sun"></i> <span id="weather-temp">--°C</span>
+      </button>
+      <button class="titlebar-btn" id="btn-pin" title="固定到最顶端">
+        <i class="fa-solid fa-thumbtack"></i>
+      </button>
+      <button class="titlebar-btn" id="refresh-btn" title="刷新">
+        <i class="fa-solid fa-rotate"></i>
+      </button>
+      <button class="titlebar-btn" id="btn-minimize" title="最小化" style="margin-left: 16px;"><i class="fa-solid fa-minus"></i></button>
+      <button class="titlebar-btn" id="btn-maximize" title="最大化"><i class="fa-regular fa-square"></i></button>
+      <button class="titlebar-btn win-close" id="btn-close" title="关闭"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  </div>
+
+  <div id="update-bar">
+    <i class="fa-solid fa-circle-check"></i>
+    <span>新版本已就绪，点击安装</span>
+  </div>
+
+  <div id="main-content">
+    <nav id="sidebar">
+      <div id="page-transition-bars"></div>
+      <div class="sidebar-nav">
+        <button class="sidebar-btn active" data-page="home" title="主页"><i class="fa-solid fa-house"></i></button>
+        <button class="sidebar-btn" data-page="search" title="搜索作业"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <button class="sidebar-btn" data-page="downloads" title="下载列表"><i class="fa-solid fa-download"></i></button>
+        <button class="sidebar-btn" data-page="appearance" title="个性化"><i class="fa-solid fa-brush"></i></button>
+        <button class="sidebar-btn" data-page="browser" title="浏览器"><i class="fa-solid fa-globe"></i></button>
+        <button class="sidebar-btn" data-page="announcements" title="公告"><i class="fa-solid fa-bullhorn"></i></button>
+        <button class="sidebar-btn" data-page="xxt" title="学习通"><i class="fa-solid fa-graduation-cap"></i></button>
+        <button class="sidebar-btn" data-page="python" title="Python"><i class="fa-brands fa-python"></i></button>
+        <button class="sidebar-btn" data-page="mmd" title="MMD模型"><i class="fa-solid fa-cube"></i></button>
+        <button class="sidebar-btn" style="display:none" data-page="log" title="日志输出"><i class="fa-solid fa-terminal"></i></button>
+        <button class="sidebar-btn" data-page="settings" title="设置"><i class="fa-solid fa-gear"></i></button>
+      </div>
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-footer">
+        <button class="avatar-btn" id="avatar-btn" title="用户菜单">
+          <i class="fa-solid fa-user"></i>
+        </button>
+      </div>
+    </nav>
+
+    <div class="corner-fill"></div>
+
+    <div class="avatar-popup" id="avatar-popup">
+      <div class="avatar-popup-header">
+        <div class="popup-nickname" id="popup-nickname">未登录</div>
+      </div>
+      <button class="avatar-popup-item" id="popup-profile">
+        <i class="fa-solid fa-address-card"></i> 个人中心
+      </button>
+      <button class="avatar-popup-item danger" id="popup-logout">
+        <i class="fa-solid fa-right-from-bracket"></i> 退出登录
+      </button>
+    </div>
+
+    <div id="page-container">
+      <div class="page active" id="page-home">
+        <div id="learning-info" class="learning-info-card info-hidden" style="display: none; margin: 0 10px 10px;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr id="learning-info-data-row">
+              <td style="padding: 0; white-space: nowrap;">
+                <button class="learning-toggle-btn" id="learning-toggle" title="显示敏感信息"><i class="fa-solid fa-eye"></i> <span id="learning-toggle-text">显示</span></button>
+              </td>
+              <td style="padding: 0 12px 0 0; white-space: nowrap;"><strong>姓名:</strong> <span class="learning-sensitive" id="learning-name"></span></td>
+              <td style="padding: 0 12px; white-space: nowrap;"><strong>单位名称:</strong> <span class="learning-sensitive" id="learning-unit">浙江东方职业技术学院</span> <button class="copy-btn learning-sensitive" data-copy="unit">复制</button></td>
+              <td style="padding: 0 12px; white-space: nowrap;"><strong>账号:</strong> <span class="learning-sensitive" id="learning-account"></span> <button class="copy-btn learning-sensitive" data-copy="account">复制</button></td>
+              <td style="padding: 0 12px; white-space: nowrap;"><strong>密码:</strong> <span class="learning-sensitive" id="learning-password"></span> <button class="copy-btn learning-sensitive" data-copy="password">复制</button></td>
+            </tr>
+            <tr id="learning-info-no-data-row" style="display:none;">
+              <td colspan="5" style="padding:0;font-size:0.85rem;line-height:1.4;color:var(--text-secondary);">
+                <i class="fa-solid fa-circle-info"></i> 服务器的学习通个人信息列表没有您的学习通数据，请前往"作业上传系统"-&gt;"设置"-&gt;"学习通"页面手动设置!(数据将保存再本地，用于登录学习通聊天服务)
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="card work-tree-card">
+          <div class="card-header">
+            <span><i class="fa-solid fa-folder-tree"></i> 作业目录</span>
+          </div>
+          <div class="card-body" id="work-tree-container">
+            <div class="shimmer-card">正在加载...</div>
+          </div>
+        </div>
+
+        <div class="card resource-tree-card">
+          <div class="card-header">
+            <span><i class="fa-solid fa-box-archive"></i> 素材库</span>
+          </div>
+          <div class="card-body" id="resource-tree-container">
+            <div class="shimmer-card">正在加载...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="page-search">
+        <div class="card">
+          <div class="card-header"><span><i class="fa-solid fa-magnifying-glass"></i> 搜索作业</span></div>
+          <div class="card-body">
+            <div class="search-input-wrap">
+              <input type="text" id="search-input" placeholder="输入关键词搜索其他人的作业...">
+              <button class="btn btn-primary" id="search-btn"><i class="fa-solid fa-search"></i> 搜索</button>
+            </div>
+            <div class="search-results" id="search-results">
+              <div class="empty-state">请输入关键词搜索</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="page-downloads">
+        <div class="card" id="running-tasks-card" style="display:none;">
+          <div class="card-header">
+            <span><i class="fa-solid fa-gear fa-spin"></i> 正在运行的任务</span>
+          </div>
+          <div class="card-body download-list" id="running-tasks-container">
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span><i class="fa-solid fa-spinner"></i> 正在下载</span>
+          </div>
+          <div class="card-body download-list" id="download-active-container">
+            <div class="empty-state">暂无正在下载的任务</div>
+          </div>
+        </div>
+        <div class="card" id="upload-active-card" style="display:none;">
+          <div class="card-header">
+            <span><i class="fa-solid fa-cloud-arrow-up" style="color:var(--theme);"></i> 正在上传</span>
+          </div>
+          <div class="card-body download-list" id="upload-active-container">
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span><i class="fa-solid fa-circle-check"></i> 下载完成</span>
+            <button class="btn btn-sm btn-outline" id="clear-downloads"><i class="fa-solid fa-trash-can"></i> 清空</button>
+          </div>
+          <div class="card-body download-list" id="download-completed-container">
+            <div class="empty-state">暂无下载记录</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="page-appearance">
+        <div class="appearance-grid">
+          <div class="card">
+            <div class="card-header"><span><i class="fa-solid fa-palette"></i> 主题颜色</span></div>
+            <div class="card-body">
+              <div class="theme-colors" id="theme-colors"></div>
+              <div class="color-input-row">
+                <input type="color" id="custom-color" value="#2a5298">
+                <input type="text" id="custom-color-text" placeholder="#2a5298" maxlength="7">
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding: 8px 0;">
+                <span style="font-size:13px;">深色模式</span>
+                <label class="switch">
+                  <input type="checkbox" id="dark-mode-toggle">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span><i class="fa-solid fa-image"></i> 背景</span></div>
+            <div class="card-body">
+              <div class="bg-preview" id="bg-preview">
+                <span style="color:var(--text-secondary);font-size:13px;">无背景</span>
+              </div>
+              <div class="bg-option" data-bg="none">
+                <i class="fa-solid fa-ban"></i> 无背景
+              </div>
+              <div class="bg-option" data-bg="image">
+                <i class="fa-solid fa-image"></i> 静态图片
+              </div>
+              <div class="bg-option" data-bg="video">
+                <i class="fa-solid fa-video"></i> 动态视频
+              </div>
+              <div class="bg-option" data-bg="high-contrast">
+                <i class="fa-solid fa-circle-half-stroke"></i> 高对比度
+              </div>
+              <div style="margin-top:8px;">
+                <button class="btn btn-outline btn-sm" id="select-bg-file"><i class="fa-solid fa-folder-open"></i> 选择文件</button>
+                <button class="btn btn-outline btn-sm" id="reset-bg" style="margin-left:6px;"><i class="fa-solid fa-rotate-left"></i> 重置</button>
+              </div>
+              <div class="opacity-row" id="bg-video-volume-row" style="display:none">
+                <span>视频音量</span>
+                <input type="range" id="bg-video-volume-slider" min="0" max="100" value="0">
+                <span class="opacity-value" id="bg-video-volume-value">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span><i class="fa-solid fa-droplet"></i> 透明度</span></div>
+            <div class="card-body">
+              <div class="opacity-row">
+                <span>卡片透明度</span>
+                <input type="range" id="opacity-slider" min="0" max="100" value="0">
+                <span class="opacity-value" id="opacity-value">0%</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding: 8px 0;">
+                <span style="font-size:13px;">背景毛玻璃效果</span>
+                <label class="switch">
+                  <input type="checkbox" id="bg-glass-toggle">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="opacity-row" id="bg-blur-row" style="display:none">
+                <span>背景模糊度</span>
+                <input type="range" id="bg-blur-slider" min="0" max="50" value="0">
+                <span class="opacity-value" id="bg-blur-value">0px</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding: 8px 0;">
+                <span style="font-size:13px;">卡片毛玻璃效果</span>
+                <label class="switch">
+                  <input type="checkbox" id="glass-toggle">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="opacity-row" id="card-blur-row" style="display:none">
+                <span>卡片模糊度</span>
+                <input type="range" id="card-blur-slider" min="0" max="50" value="0">
+                <span class="opacity-value" id="card-blur-value">0px</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding: 8px 0;">
+                <span style="font-size:13px;">启用浏览器选项卡透明效果(实验性)</span>
+                <label class="switch">
+                  <input type="checkbox" id="browser-glass-toggle">
+                  <span class="slider"></span>
+                </label>
+              </div>
+
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span><i class="fa-solid fa-film"></i> 自定义启动动画</span></div>
+            <div class="card-body">
+              <div class="splash-type-options" id="splash-type-options">
+                <div class="splash-type-option" data-type="default">
+                  <i class="fa-solid fa-circle-notch"></i> 默认动画
+                </div>
+                <div class="splash-type-option" data-type="image">
+                  <i class="fa-solid fa-image"></i> 静态图片
+                </div>
+                <div class="splash-type-option" data-type="video">
+                  <i class="fa-solid fa-video"></i> 动态视频
+                </div>
+                <div class="splash-type-option" data-type="bg">
+                  <i class="fa-solid fa-clone"></i> 使用当前背景
+                </div>
+              </div>
+              <div style="margin-top:8px;">
+                <button class="btn btn-outline btn-sm" id="select-splash-file" style="display:none;"><i class="fa-solid fa-folder-open"></i> 选择文件</button>
+                <button class="btn btn-outline btn-sm" id="reset-splash" style="margin-left:6px;"><i class="fa-solid fa-rotate-left"></i> 重置</button>
+              </div>
+              <div class="opacity-row" id="splash-volume-row" style="display:none">
+                <span>视频音量</span>
+                <input type="range" id="splash-volume-slider" min="0" max="100" value="50">
+                <span class="opacity-value" id="splash-volume-value">50%</span>
+              </div>
+              <div id="splash-info" style="font-size:12px;color:var(--text-secondary);margin-top:6px;display:none;"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span><i class="fa-solid fa-font"></i> 字体</span></div>
+            <div class="card-body">
+              <div style="margin-bottom:8px;">
+                <button class="btn btn-outline btn-sm" id="select-font-file"><i class="fa-solid fa-folder-open"></i> 导入字体 (.ttf)</button>
+                <button class="btn btn-outline btn-sm" id="reset-font" style="margin-left:6px;"><i class="fa-solid fa-rotate-left"></i> 重置</button>
+              </div>
+              <div id="font-name" style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;display:none;"></div>
+              <div class="opacity-row">
+                <span>字体粗细</span>
+                <input type="range" id="font-weight-slider" min="100" max="900" value="400" step="100">
+                <span class="opacity-value" id="font-weight-value">400</span>
+              </div>
+              <div class="opacity-row">
+                <span>字体大小</span>
+                <input type="range" id="font-size-slider" min="80" max="200" value="80" step="5">
+                <span class="opacity-value" id="font-size-value">80%</span>
+              </div>
+              <div class="opacity-row">
+                <span>字体颜色</span>
+                <input type="color" id="font-color-picker" value="#2c3e50">
+              </div>
+              <button class="btn btn-outline btn-sm" id="reset-font-settings" style="margin-top:8px;"><i class="fa-solid fa-undo"></i> 恢复默认</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span><i class="fa-solid fa-universal-access"></i> 无障碍</span></div>
+            <div class="card-body">
+              <div class="opacity-row">
+                <span>缩放比例</span>
+                <input type="range" id="zoom-slider" min="20" max="150" value="100" step="5">
+                <span class="opacity-value" id="zoom-value">100%</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;">
+                <label for="show-tap-feedback" style="font-size:13px;cursor:pointer;">显示点击位置</label>
+                <label class="switch">
+                  <input type="checkbox" id="show-tap-feedback">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="opacity-row">
+                <span>窗口透明度</span>
+                <input type="range" id="appearance-window-opacity-slider" min="10" max="100" value="100">
+                <span class="opacity-value" id="appearance-window-opacity-value">100%</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;">
+                <label for="skip-anim-toggle" style="font-size:13px;cursor:pointer;">跳过所有动画</label>
+                <label class="switch">
+                  <input type="checkbox" id="skip-anim-toggle">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="page-browser">
+        <div class="browser-container">
+          <div class="browser-tabbar">
+            <div class="browser-tabs" id="browser-tabs">
+              <button class="browser-new-tab" id="browser-new-tab" title="新建标签页"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+          <div class="browser-addressbar">
+            <button class="browser-nav-btn" id="browser-nav-back" title="后退"><i class="fa-solid fa-arrow-left"></i></button>
+            <button class="browser-nav-btn" id="browser-nav-forward" title="前进"><i class="fa-solid fa-arrow-right"></i></button>
+            <button class="browser-nav-btn" id="browser-nav-refresh" title="刷新"><i class="fa-solid fa-rotate"></i></button>
+            <input type="text" class="browser-url" id="browser-url" placeholder="在百度搜索，或直接输入网址...">
+            <button class="browser-nav-btn" id="browser-nav-go" title="前往"><i class="fa-solid fa-arrow-right-to-bracket"></i></button>
+          </div>
+          <div class="browser-content">
+            <div id="browser-webview-container" style="width:100%;height:100%;position:relative;"></div>
+            <div class="browser-history" id="browser-history">
+              <div style="text-align:center;color:var(--text-secondary);padding:40px;">
+                <i class="fa-solid fa-globe" style="font-size:48px;opacity:0.3;display:block;margin-bottom:12px;"></i>
+                <span>新建标签页开始浏览</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="page-xxt">
+        <div id="xxt-learning-info" class="learning-info-card info-hidden" style="display: none; margin: 0 10px 10px;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr id="xxt-learning-info-data-row">
+              <td style="padding: 0; white-space: nowrap;">
+                <button class="learning-toggle-btn" id="xxt-learning-toggle" title="显示敏感信息"><i class="fa-solid fa-eye"></i> <span id="xxt-learning-toggle-text">显示</span></button>
+              </td>
+              <td style="padding: 0 12px 0 0; white-space: nowrap;"><strong>姓名:</strong> <span class="learning-sensitive" id="xxt-learning-name"></span></td>
+              <td style="padding: 0 12px; white-space: nowrap;"><strong>单位名称:</strong> <span class="learning-sensitive" id="xxt-learning-unit">浙江东方职业技术学院</span> <button class="copy-btn learning-sensitive" data-copy="unit">复制</button></td>
+              <td style="padding: 0 12px; white-space: nowrap;"><strong>账号:</strong> <span class="learning-sensitive" id="xxt-learning-account"></span> <button class="copy-btn learning-sensitive" data-copy="account">复制</button></td>
+              <td style="padding: 0 12px; white-space: nowrap;"><strong>密码:</strong> <span class="learning-sensitive" id="xxt-learning-password"></span> <button class="copy-btn learning-sensitive" data-copy="password">复制</button></td>
+            </tr>
+            <tr id="xxt-learning-info-no-data-row" style="display:none;">
+              <td colspan="5" style="padding:0;font-size:0.85rem;line-height:1.4;color:var(--text-secondary);">
+                <i class="fa-solid fa-circle-info"></i> 服务器的个人信息列表没有您的学习通数据，请前往"作业上传系统"-&gt;"设置"-&gt;"学习通"页面手动设置!(数据将保存再本地，用于登录学习通聊天服务)
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="browser-container" id="xxt-browser-container" style="display:none;">
+          <div class="xxt-toolbar">
+            <button class="browser-nav-btn" id="xxt-nav-back" title="后退"><i class="fa-solid fa-arrow-left"></i></button>
+            <button class="browser-nav-btn" id="xxt-nav-forward" title="前进"><i class="fa-solid fa-arrow-right"></i></button>
+            <button class="browser-nav-btn" id="xxt-nav-refresh" title="刷新"><i class="fa-solid fa-rotate"></i></button>
+            <div class="xxt-tabs" id="xxt-tabs"></div>
+            <button class="xxt-logout-btn" id="xxt-logout-btn" title="退出登录"><i class="fa-solid fa-right-from-bracket"></i> 退出登录</button>
+          </div>
+          <div class="browser-content">
+            <div id="xxt-webview-container" style="width:100%;height:100%;position:relative;"></div>
+            <div id="xxt-chat-panel" style="display:none;width:100%;height:100%;">
+              <div class="chat-container">
+                <div class="chat-sidebar" id="xxt-chat-sidebar">
+                  <div class="chat-sidebar-header">消息(实验性) <button class="chat-contacts-btn" id="xxt-chat-contacts-btn" title="好友列表"><i class="fa-solid fa-address-book"></i> 好友</button></div>
+                  <div class="chat-search-bar">
+                    <input type="text" class="chat-search-input" id="xxt-chat-search" placeholder="输入用户ID查找或新建会话...">
+                    <button class="chat-search-btn" id="xxt-chat-add-contact-btn" title="添加好友"><i class="fa-solid fa-user-plus"></i></button>
+                  </div>
+                  <div class="chat-conv-list" id="xxt-chat-conv-list"></div>
+                </div>
+                <div class="chat-main">
+                  <div class="chat-main-placeholder" id="xxt-chat-placeholder">
+                    <i class="fa-solid fa-comments" style="font-size:48px;opacity:0.25;display:block;margin-bottom:12px;"></i>
+                    <div style="font-size:15px;color:var(--text-secondary);">选择一个会话开始聊天</div>
+                  </div>
+                  <div class="chat-messages" id="xxt-chat-messages" style="display:none;"></div>
+                  <div class="chat-input-area" id="xxt-chat-input-area" style="display:none;">
+                    <div class="chat-actions-bar">
+                      <button class="chat-shake-btn" id="xxt-chat-shake-btn" title="抖一抖"><i class="fa-solid fa-arrow-right-arrow-left"></i> 抖一抖</button>
+                      <button class="chat-shake-btn" id="xxt-chat-call-btn" title="语音通话"><i class="fa-solid fa-phone"></i> 语音通话</button>
+                    </div>
+                    <div class="chat-input-row">
+                      <textarea class="chat-input" id="xxt-chat-input" placeholder="输入消息..." rows="2"></textarea>
+                      <button class="chat-send-btn" id="xxt-chat-send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="xxt-placeholder" id="xxt-placeholder">
+          <div class="xxt-placeholder-content">
+            <i class="fa-solid fa-graduation-cap" style="font-size:56px;opacity:0.35;display:block;margin-bottom:16px;"></i>
+            <div style="font-size:18px;font-weight:600;margin-bottom:8px;color:var(--text);">学习通</div>
+            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:24px;">点击下方按钮在独立窗口中登录学习通</div>
+            <button class="xxt-open-btn" id="xxt-open-btn">
+              <i class="fa-solid fa-graduation-cap"></i> 登录学习通
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="page-announcements">
+        <div class="announcements-container" id="announcements-container">
+          <div class="shimmer-card">正在加载...</div>
+          <div class="shimmer-card" style="margin-top:10px;">正在加载...</div>
+        </div>
+      </div>
+
+      <div class="page" id="page-settings">
+        <div class="card">
+          <div class="card-header"><span><i class="fa-solid fa-gear"></i> 设置</span></div>
+          <div class="settings-content">
+            <div class="settings-tabs">
+              <button class="settings-tab active" data-tab="general"><i class="fa-solid fa-sliders"></i> 常规</button>
+              <button class="settings-tab" data-tab="window"><i class="fa-solid fa-window-maximize"></i> 窗口</button>
+              <button class="settings-tab" data-tab="xxt"><i class="fa-solid fa-graduation-cap"></i> 学习通</button>
+              <button class="settings-tab" data-tab="browser"><i class="fa-solid fa-globe"></i> 浏览器</button>
+              <button class="settings-tab" data-tab="mmd"><i class="fa-solid fa-cube"></i> MMD模型</button>
+              <button class="settings-tab" data-tab="developer" id="developer-tab" style="display:none;"><i class="fa-solid fa-code"></i> 开发者选项</button>
+            </div>
+            <div class="settings-panels">
+            <div class="settings-panel active" id="panel-general">
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">开机自动启动</div>
+                <div class="settings-desc">程序将在系统启动时自动运行</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="auto-start-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">检查更新</div>
+                <div class="settings-desc">通过选定的后端地址检测新版本</div>
+              </div>
+              <button class="btn btn-outline btn-sm" id="check-update-btn"><i class="fa-solid fa-arrows-rotate"></i> 检查更新</button>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">获取一次最新测试版更新包</div>
+                <div class="settings-desc">检查更新"最新测试版"</div>
+              </div>
+              <button class="btn btn-outline btn-sm" id="check-beta-update-btn"><i class="fa-solid fa-flask"></i> 获取一次最新测试版更新包</button>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">接收测试版本更新</div>
+                <div class="settings-desc">测试版拥有更多功能，同时可能会有小概率导致某些功能不稳定</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="beta-update-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">后端地址</div>
+                <div class="settings-desc">切换连接的后端服务器</div>
+              </div>
+              <select id="settings-ip-selector" class="ip-selector" style="width:200px;"></select>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">更改后端地址优先使用局域网</div>
+                <div class="settings-desc">默认使用局域网，不消耗任何流量</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="lan-first-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">当前版本</div>
+                <div class="settings-desc" id="current-version">v1.2.2</div>
+              </div>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label"><i class="fa-solid fa-globe"></i> 设置成默认浏览器</div>
+                <div class="settings-desc">注册为 http/https 协议处理程序，点击网页链接可用本程序打开</div>
+              </div>
+              <button class="btn btn-outline btn-sm" id="set-default-browser-btn">设为默认浏览器</button>
+            </div>
+            </div>
+            <div class="settings-panel" id="panel-window">
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">全局快捷键 <input type="text" id="shortcut-input" class="shortcut-input" readonly placeholder="Ctrl+Alt+Shift+Z" style="width:160px;text-align:center;font-size:12px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);cursor:pointer;vertical-align:middle;"></div>
+                <div class="settings-desc">显示或隐藏窗口，点击输入框并按下键盘按键开始设置快捷键</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="global-shortcut-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">ESC 隐藏窗口到托盘</div>
+                <div class="settings-desc">在窗口内按 Esc 键隐藏到系统托盘</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="esc-hide-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">置顶窗口快捷键 <input type="text" id="always-on-top-shortcut-input" class="shortcut-input" readonly placeholder="Ctrl+Shift+Alt+T" style="width:160px;text-align:center;font-size:12px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);cursor:pointer;vertical-align:middle;"></div>
+                <div class="settings-desc">切换窗口置顶状态，点击输入框后按下组合键</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="always-on-top-shortcut-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">限制窗口最小大小</div>
+                <div class="settings-desc">防止窗口被缩得过小导致界面错乱</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="limit-min-size-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item" id="min-height-item" style="display:none;">
+              <div style="flex:1;">
+                <div class="settings-label">最小窗口高度 <span id="min-height-value">620</span>px</div>
+                <input type="range" id="min-height-slider" min="100" max="620" value="620" style="width:100%;margin-top:4px;">
+              </div>
+            </div>
+            <div class="settings-item" id="min-width-item" style="display:none;">
+              <div style="flex:1;">
+                <div class="settings-label">最小窗口宽度 <span id="min-width-value">900</span>px</div>
+                <input type="range" id="min-width-slider" min="150" max="900" value="900" style="width:100%;margin-top:4px;">
+              </div>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">启用透明背景(实验性功能)</div>
+                <div class="settings-desc">该功能有较多bug，肯定会导致稳定性问题</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="acrylic-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div style="flex:1;">
+                <div class="settings-label"><i class="fa-solid fa-magnifying-glass"></i> 缩放比例</div>
+                <div class="settings-desc">调整整体界面缩放</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input type="range" id="window-zoom-slider" min="20" max="150" step="5" style="width:120px;">
+                <span style="font-size:13px;min-width:40px;text-align:right;" id="window-zoom-value">100%</span>
+              </div>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label"><i class="fa-solid fa-magnifying-glass"></i> 显示搜索作业选项卡</div>
+                <div class="settings-desc">在侧边栏显示搜索作业图标</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="show-search-tab-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label"><i class="fa-solid fa-palette"></i> 显示外观选项卡</div>
+                <div class="settings-desc">在侧边栏显示外观图标</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="show-appearance-tab-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label"><i class="fa-solid fa-globe"></i> 显示浏览器选项卡</div>
+                <div class="settings-desc">在侧边栏显示浏览器图标</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="show-browser-tab-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label"><i class="fa-solid fa-bullhorn"></i> 显示公告选项卡</div>
+                <div class="settings-desc">在侧边栏显示公告图标</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="show-announcements-tab-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label"><i class="fa-solid fa-graduation-cap"></i> 显示学习通选项卡</div>
+                <div class="settings-desc">在侧边栏显示学习通图标</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="show-xxt-tab-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label"><i class="fa-brands fa-python"></i> 显示Python选项卡</div>
+                <div class="settings-desc">在侧边栏显示Python图标</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="show-python-tab-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label"><i class="fa-solid fa-cube"></i> 显示MMD模型选项卡</div>
+                <div class="settings-desc">在侧边栏显示MMD模型图标</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="show-mmd-tab-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            </div>
+            <div class="settings-panel" id="panel-xxt">
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">禁用学习通接收抖动窗口</div>
+                <div class="settings-desc">开启后不再响应对方发来的窗口抖动</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="disable-shake-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">禁用学习通接收通话来电</div>
+                <div class="settings-desc">开启后不再弹出通话窗口</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="disable-call-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">更改本地学习通账户登录信息</div>
+                <div class="settings-desc">仅本地储存，覆盖服务器数据用于登录学习通与环信(聊天)服务</div>
+              </div>
+              <button class="btn btn-outline btn-sm" id="change-xxt-creds-btn">更改</button>
+            </div>
+            </div>
+            <div class="settings-panel" id="panel-browser">
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">隐藏浏览器标签页与搜索栏键 <input type="text" id="browser-hide-shortcut-input" class="shortcut-input" readonly placeholder="F10" style="width:80px;text-align:center;font-size:12px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);cursor:pointer;vertical-align:middle;"></div>
+                <div class="settings-desc">在浏览器选项卡内按下此键隐藏/显示标签页栏与搜索栏</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="browser-hide-shortcut-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label"><i class="fa-solid fa-fingerprint"></i> 使用自定义 UA</div>
+                <div class="settings-desc">关闭使用默认 Electron UA，开启后所有请求使用下方自定义 User-Agent</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <button class="btn btn-outline btn-sm" id="custom-ua-reset-btn" title="重置为默认UA" style="padding:3px 8px;font-size:12px;"><i class="fa-solid fa-undo"></i></button>
+                <label class="switch">
+                  <input type="checkbox" id="custom-ua-toggle">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="settings-item" id="custom-ua-input-item" style="display:none;">
+              <div style="width:100%;">
+                <div class="settings-label">自定义 UA 字符串</div>
+                <div class="settings-desc">影响所有网络请求的 User-Agent 头</div>
+                <input type="text" id="custom-ua-input" class="shortcut-input" value="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) anghaoyu16/1.4.0 Chrome/152.0.7977.130 Safari/537.36" style="width:100%;text-align:left;font-size:12px;padding:6px 8px;margin-top:4px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);">
+              </div>
+            </div>
+            <div class="settings-item" id="custom-ua-restart-item" style="display:none;">
+              <div>
+                <div class="settings-label"><i class="fa-solid fa-rotate"></i> 需要重新启动窗口生效</div>
+                <div class="settings-desc">UA 修改需重启窗口后应用</div>
+              </div>
+              <button class="btn btn-primary" id="custom-ua-restart-btn" style="padding:8px 18px;font-size:13px;"><i class="fa-solid fa-arrow-rotate-right"></i> 点击重启</button>
+            </div>
+            </div>
+            <div class="settings-panel" id="panel-mmd">
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">初始化自动加载上一次启用的 MMD 模型</div>
+                <div class="settings-desc">启动完成后自动加载上次使用的模型（包括模型列表页面）</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="mmd-auto-load-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">预览模型超时时间</div>
+                <div class="settings-desc">模型预览渲染的最大等待时间，超时将跳过预览生成</div>
+              </div>
+              <input type="number" id="mmd-preview-timeout-input" class="shortcut-input" min="1" max="60" value="5" placeholder="5" style="width:80px;text-align:center;font-size:12px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);">
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">摄像机缩放</div>
+                <div class="settings-desc">调整摄像机距离，值越大模型越小。影响预览图和小窗口，默认 1.15</div>
+              </div>
+              <input type="number" id="mmd-camera-zoom-input" class="shortcut-input" min="0.5" max="5.0" step="0.05" value="1.15" placeholder="1.15" style="width:80px;text-align:center;font-size:12px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);">
+            </div>
+            </div>
+            <div class="settings-panel" id="panel-developer">
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">背景全透明</div>
+                <div class="settings-desc">页面背景完全透明，字体和按钮保持不透明</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="window-transparent-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">窗口透明度</div>
+                <div class="settings-desc">调整窗口整体不透明度，默认 10%</div>
+              </div>
+              <div class="opacity-row">
+                <input type="range" id="window-opacity-slider" min="5" max="100" value="100">
+                <span class="opacity-value" id="window-opacity-value">100%</span>
+              </div>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">穿透点击窗口</div>
+                <div class="settings-desc">窗口穿透点击，标题栏不穿透，点击标题栏自动关闭穿透模式</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="window-clickthrough-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">开发者控制面板</div>
+                <div class="settings-desc">打开独立的开发者控制面板窗口</div>
+              </div>
+              <button class="btn btn-primary" id="open-dev-panel-btn" style="padding:6px 14px;font-size:12px;">打开</button>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">开发面板快捷键 <input type="text" id="dev-panel-shortcut-input" class="shortcut-input" readonly placeholder="Ctrl+Alt+Shift+I" style="width:160px;text-align:center;font-size:12px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);cursor:pointer;vertical-align:middle;"></div>
+                <div class="settings-desc">打开/关闭开发者控制面板，点击输入框后按下组合键</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="dev-panel-shortcut-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">启用/禁用 穿透点击窗口快捷键 <input type="text" id="ext-shortcut-input" class="shortcut-input" readonly placeholder="Ctrl+Shift+Alt+X" style="width:160px;text-align:center;font-size:12px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);cursor:pointer;vertical-align:middle;"></div>
+                <div class="settings-desc">切换窗口穿透点击模式，点击输入框后按下组合键</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="ext-shortcut-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">打开开发者工具</div>
+                <div class="settings-desc">打开 Chromium DevTools 调试面板</div>
+              </div>
+              <button class="btn btn-primary" id="open-devtools-btn" style="padding:6px 14px;font-size:12px;">打开</button>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">Ctrl+Alt+Shift+ / - 快速更改窗口透明度</div>
+                <div class="settings-desc">全局快捷键：+ 增加透明度，- 降低透明度（最低1%，最高100%）</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="opacity-shortcut-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">Ctrl+Shift+Alt+M 切换深色/浅色模式</div>
+                <div class="settings-desc">全局快捷键：快速切换深色模式与浅色模式</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="dark-mode-shortcut-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">显示"帮我交作业"按钮</div>
+                <div class="settings-desc">在作业树文件夹中显示"帮我交作业"按钮，方便测试</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="show-copy-homework-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="page-python">
+        <div class="python-container">
+          <div class="python-editor-panel" id="python-editor-panel">
+            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+              <span><i class="fa-brands fa-python"></i> Python 编辑器</span>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" id="python-open-btn" title="打开文件"><i class="fa-solid fa-folder-open"></i> 打开</button>
+                <button class="btn btn-outline btn-sm" id="python-save-btn" title="保存文件"><i class="fa-solid fa-floppy-disk"></i> 保存</button>
+                <button class="btn btn-outline btn-sm" id="python-saveas-btn" title="另存为"><i class="fa-solid fa-file-pen"></i> 另存为</button>
+                <button class="btn btn-outline btn-sm" id="python-rerun-btn" title="重新运行" style="display:none;"><i class="fa-solid fa-rotate-right"></i> 重新运行</button>
+                <button class="btn btn-primary btn-sm" id="python-run-btn" title="运行代码"><i class="fa-solid fa-play"></i> 运行</button>
+              </div>
+            </div>
+            <div class="python-tabbar" id="python-tabbar"></div>
+            <div class="python-editor-wrapper">
+              <div class="python-line-numbers" id="python-line-numbers"></div>
+              <textarea id="python-editor" class="python-editor" placeholder="# 在这里编写 Python 代码..." spellcheck="false"></textarea>
+            </div>
+          </div>
+          <div class="python-resize-handle" id="python-resize-handle"><span class="resize-dots">●●●</span></div>
+          <div class="python-terminal-panel" id="python-terminal-panel">
+            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+              <span><i class="fa-solid fa-terminal"></i> Python 命令行</span>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" id="python-stop-btn" title="停止运行"><i class="fa-solid fa-stop"></i> 停止</button>
+                <button class="btn btn-outline btn-sm" id="python-clear-btn" title="清空输出"><i class="fa-solid fa-trash"></i> 清空</button>
+              </div>
+            </div>
+            <div class="python-terminal" id="python-terminal">
+              <textarea class="python-terminal-textarea" id="python-terminal-textarea" spellcheck="false"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="page-mmd"></div>
+
+      <div class="page" id="page-log">
+        <div class="card" style="flex:1;display:flex;flex-direction:column;">
+          <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+            <span><i class="fa-solid fa-terminal"></i> 日志输出</span>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-outline btn-sm" id="log-copy-btn" title="复制全部日志"><i class="fa-solid fa-copy"></i> 复制</button>
+              <button class="btn btn-outline btn-sm" id="log-clear-btn" title="清空日志"><i class="fa-solid fa-trash"></i> 清空</button>
+            </div>
+          </div>
+          <div class="card-body" style="flex:1;overflow-y:auto;font-family:'Consolas','Courier New',monospace;font-size:12px;line-height:1.7;user-select:text;" id="log-output">
+            <div class="log-line" style="color:var(--text-secondary);">等待日志输出...</div>
+          </div>
+          <div class="log-cmd-bar">
+            <span class="log-cmd-prompt">&gt;</span>
+            <textarea id="log-cmd-input" class="log-cmd-input" placeholder="输入 JavaScript 命令..." rows="1"></textarea>
+            <button class="btn btn-sm" id="log-cmd-btn" title="执行"><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="network-overlay" class="network-overlay hidden">
+  <div class="message-box">
+            <i id="network-icon" class="fa-solid fa-server"></i>
+    <h2 id="network-title">正在连接服务器...</h2>
+    <p id="network-message">正在尝试连接后端，请稍候。</p>
+    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+      <select id="error-ip-selector" class="ip-selector" style="flex:2;"></select>
+      <button id="retry-connection-btn">重试</button>
+    </div>
+  </div>
+    </div>
+
+<div class="modal-overlay" id="xxt-confirm-modal">
+  <div class="modal-content" style="max-width:360px;">
+    <h3 id="xxt-confirm-title">确认</h3>
+    <p id="xxt-confirm-msg" style="margin:12px 0;color:var(--text-secondary);font-size:14px;"></p>
+    <div class="modal-actions">
+      <button class="btn" id="xxt-confirm-cancel" style="background:#6c757d;color:#fff;">取消</button>
+      <button class="btn btn-primary" id="xxt-confirm-ok">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="xxt-experimental-modal">
+  <div class="modal-content" style="max-width:400px;">
+    <h3>消息(实验性)</h3>
+    <p style="margin:14px 0;color:var(--text-secondary);font-size:14px;line-height:1.6;">
+      <i class="fa-solid fa-flask" style="color:#f39c12;"></i> 消息为单独调用的学习通接口，学习通没有开放web版聊天，此为独立开发的聊天页面。<br><br>
+      当前页面bug较多，开发已久，请谅解，后续会陆续修复与完善。
+    </p>
+    <div class="modal-actions">
+      <button class="btn" id="xxt-experimental-cancel" style="background:#6c757d;color:#fff;">取消</button>
+      <button class="btn btn-primary" id="xxt-experimental-ok" disabled style="opacity:0.5;">我已阅读，继续使用</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="xxt-local-creds-modal">
+  <div class="modal-content" style="max-width:400px;">
+    <h3>更改本地学习通账户</h3>
+    <p style="margin:8px 0 16px;color:var(--text-secondary);font-size:12px;">
+      <i class="fa-solid fa-shield-halved"></i> 此信息仅本地储存，不发送到任何服务器
+    </p>
+    <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:4px;">账号</label>
+    <input type="text" class="modal-input" id="xxt-local-account" placeholder="学习通账号">
+    <label style="font-size:13px;color:var(--text-secondary);display:block;margin-top:12px;margin-bottom:4px;">单位名称</label>
+    <input type="text" class="modal-input" id="xxt-local-unit" placeholder="学校/单位名称">
+    <label style="font-size:13px;color:var(--text-secondary);display:block;margin-top:12px;margin-bottom:4px;">密码</label>
+    <span class="password-wrapper">
+      <input type="password" class="modal-input" id="xxt-local-password" placeholder="学习通密码">
+      <button class="password-toggle" type="button"><i class="fa-solid fa-eye"></i></button>
+    </span>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn btn-outline" id="xxt-local-creds-reset" style="color:var(--text);">恢复默认</button>
+      <button class="btn" id="xxt-local-creds-cancel" style="background:#6c757d;color:#fff;">取消</button>
+      <button class="btn btn-primary" id="xxt-local-creds-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="xxt-password-modal">
+  <div class="modal-content" style="max-width:400px;">
+    <h3>重新连接学习通聊天</h3>
+    <p style="margin:8px 0;color:var(--text-secondary);font-size:13px;">你的默认密码已更改，无法连接学习通聊天频道</p>
+    <p style="margin:8px 0 16px;color:var(--text-secondary);font-size:12px;opacity:0.8;">
+      <i class="fa-solid fa-shield-halved"></i> 输入你的最新的学习通密码（全程不发送云端，仅本地处理连接学习通）
+    </p>
+    <span class="password-wrapper">
+      <input type="password" class="modal-input" id="xxt-password-input" placeholder="输入最新的学习通密码">
+      <button class="password-toggle" type="button"><i class="fa-solid fa-eye"></i></button>
+    </span>
+    <p id="xxt-password-error" style="display:none;color:#e74c3c;font-size:12px;margin-top:6px;"></p>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn" id="xxt-password-cancel" style="background:#6c757d;color:#fff;">取消</button>
+      <button class="btn btn-primary" id="xxt-password-submit">重新连接</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="login-modal">
+  <div class="modal-content">
+    <h3 id="login-modal-title">登录</h3>
+    <input type="text" class="modal-input" id="login-username" placeholder="真实姓名">
+    <span class="password-wrapper"><input type="password" class="modal-input" id="login-password" placeholder="密码"><button class="password-toggle" type="button"><i class="fa-solid fa-eye"></i></button></span>
+    <span class="password-wrapper" id="login-password-confirm-wrapper" style="display:none"><input type="password" class="modal-input" id="login-password-confirm" placeholder="确认密码"><button class="password-toggle" type="button"><i class="fa-solid fa-eye"></i></button></span>
+    <a id="switch-to-register" class="login-register-link">还没有账号？点我注册</a>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="login-submit">登录</button>
+      <button class="btn" id="close-login-modal" style="background:#6c757d;color:#fff;">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal-content">
+    <h3>个人中心</h3>
+    <div class="avatar-preview">
+      <img id="profile-avatar-preview" src="" alt="头像">
+    </div>
+    <div class="avatar-actions">
+      <button class="btn btn-outline btn-sm" id="select-avatar">选择图片</button>
+      <button class="btn btn-outline btn-sm" id="reset-avatar">重置头像</button>
+    </div>
+    <div class="crop-container" id="crop-container" style="display:none;">
+      <img id="crop-image">
+    </div>
+    <div class="crop-container" id="crop-actions" style="display:none;">
+      <button class="btn btn-primary btn-sm" id="crop-confirm">确认裁剪</button>
+      <button class="btn btn-outline btn-sm" id="crop-cancel">取消</button>
+    </div>
+    <label style="font-size:13px;color:var(--text-secondary);margin-top:4px;display:block;">昵称</label>
+    <input type="text" class="modal-input" id="profile-nickname" placeholder="昵称">
+    <label style="font-size:13px;color:var(--text-secondary);margin-top:4px;display:block;">密码（留空不修改）</label>
+    <span class="password-wrapper"><input type="password" class="modal-input" id="profile-password" placeholder="新密码"><button class="password-toggle" type="button"><i class="fa-solid fa-eye"></i></button></span>
+    <span class="password-wrapper"><input type="password" class="modal-input" id="profile-password-confirm" placeholder="确认新密码"><button class="password-toggle" type="button"><i class="fa-solid fa-eye"></i></button></span>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="profile-cancel">取消</button>
+      <button class="btn btn-primary" id="profile-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="rename-dialog">
+  <div class="modal-content">
+    <h3 id="rename-title">重命名</h3>
+    <input type="text" class="modal-input" id="rename-input" placeholder="输入新名称">
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="rename-cancel">取消</button>
+      <button class="btn btn-primary" id="rename-confirm">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="generic-dialog">
+  <div class="modal-content" style="min-width:380px;max-width:480px;">
+    <h3 id="generic-dialog-title">提示</h3>
+    <p id="generic-dialog-msg" style="margin:0 0 16px 0;line-height:1.6;white-space:pre-wrap;word-break:break-word;"></p>
+    <input type="text" class="modal-input" id="generic-dialog-input" placeholder="" style="display:none;">
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="generic-dialog-cancel">取消</button>
+      <button class="btn btn-primary" id="generic-dialog-confirm">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="folder-picker-dialog">
+  <div class="modal-content" style="min-width:420px;max-width:520px;">
+    <h3 id="folder-picker-title">选择目标文件夹</h3>
+    <div id="folder-picker-tree" style="max-height:360px;overflow-y:auto;padding:8px 0;">加载中...</div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="folder-picker-cancel">取消</button>
+      <button class="btn btn-primary" id="folder-picker-confirm" disabled>确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="copy-homework-dialog">
+  <div class="modal-content" style="min-width:420px;max-width:560px;">
+    <h3 id="copy-homework-title">想要复制谁的作业？</h3>
+    <div style="margin-bottom:8px;">
+      <span id="copy-hw-count" style="font-size:12px;color:var(--text-secondary);"></span>
+    </div>
+    <div id="copy-homework-file-list" style="max-height:340px;overflow-y:auto;padding:4px 0;">加载中...</div>
+    <div style="margin-top:10px;">
+      <input type="text" class="modal-input" id="copy-hw-new-name" placeholder="请输入新文件名字（自动保留后缀）" style="margin-top:10px;">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="copy-hw-cancel">取消</button>
+      <button class="btn btn-primary" id="copy-hw-confirm">确认复制该作业</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+    <div id="global-progress"></div>
+
+<video class="overlay-bg" id="bg-video" style="display:none;" loop playsinline></video>
+<img class="overlay-bg" id="bg-image" style="display:none;">
+
+<script src="static/cropper/cropper.min.js"></script>
+<script src="node_modules/easemob-websdk/Easemob-chat.js"></script>
+  <script src="js/app.js"></script>
+  <script type="module" src="js/mmd.js"></script>
+
+</body>
+</html>

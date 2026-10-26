@@ -1,0 +1,42 @@
+# 依赖
+node_modules/
+
+# 构建产物
+dist/
+out/
+build/
+
+# 日志
+*.log
+npm-debug.log*
+
+# 运行时数据
+files/
+userData/
+*.db
+*.sqlite
+
+# 编辑器
+.vscode/
+.idea/
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# 敏感配置文件
+server_python/config.json
+server_python/data/
+server_python/file/
+
+# 敏感配置文件（复制 config.example.json 为 config.json 后填写真实值）
+server_python/config.json
+venv/
+env/
+*.egg-info/
+.pytest_cache/

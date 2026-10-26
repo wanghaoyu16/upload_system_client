@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            width: 80%;
+            background: #2d2d2d;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #444;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 24px;
+            background-color: #2a5298;
+            transition: width 0.2s;
+        }
+        button {
+            margin-top: 20px;
+            padding: 6px 12px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #percent {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3 id="title">正在下载更新</h3>
+        <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+        <div id="percent">0%</div>
+        <button id="cancel">取消下载</button>
+    </div>
+    <script>
+        const { ipcRenderer } = require('electron');
+        document.getElementById('cancel').onclick = () => {
+            ipcRenderer.send('cancel-download');
+        };
+        ipcRenderer.on('update-progress', (event, percent) => {
+            document.getElementById('progress-fill').style.width = percent + '%';
+            document.getElementById('percent').innerText = percent + '%';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "backends": [
+    "http://请 在此处输入内网IP地址1",
+    "http://请 在此处输入内网IP地址2",
+    "http://请 在此处输入内网IP地址3",
+    "http://请 在此处输入内网IP地址4",
+    "http://请 在此处输入内网IP地址5",
+    "http://请 在此处输入公网IP地址1",
+    "http://请 在此处输入公网IP地址2",
+    "http://请 在此处输入公网IP地址3",
+    "http://127.0.0.1"
+  ],
+  "xxt_excel_filename": "请在此处输入学习通数据文件名.xlsx",
+  "xxt_default_password": "请在此处输入默认密码",
+  "update_version_url": "http://请 在此处输入更新服务器IP/version.json",
+  "data_dir": "./data"
+}

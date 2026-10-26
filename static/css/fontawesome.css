@@ -1,0 +1,156 @@
+/* 自定义 FontAwesome 6 样式 - 使用本地 woff2 文件 */
+@font-face {
+  font-family: 'Font Awesome 6 Free';
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src: url('../fontawesome/webfonts/fa-solid-900.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Font Awesome 6 Free';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('../fontawesome/webfonts/fa-regular-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Font Awesome 6 Brands';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('../fontawesome/webfonts/fa-brands-400.woff2') format('woff2');
+}
+
+.fa,
+.fas,
+.far,
+.fab {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  line-height: 1;
+}
+
+.fas {
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+}
+
+.fa-solid {
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  line-height: 1;
+}
+
+.far {
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 400;
+}
+
+.fab {
+  font-family: 'Font Awesome 6 Brands';
+  font-weight: 400;
+}
+
+/* ========== 图标定义（按使用场景分组） ========== */
+
+/* 基础操作 */
+.fa-folder:before { content: "\f07b"; }
+.fa-folder-open:before { content: "\f07c"; }
+.fa-file:before { content: "\f15b"; }
+.fa-file-alt:before { content: "\f15c"; }
+.fa-upload:before { content: "\f093"; }
+.fa-download:before { content: "\f019"; }
+.fa-trash-alt:before { content: "\f2ed"; }
+.fa-trash-restore:before { content: "\f829"; }
+.fa-plus:before { content: "\f067"; }
+.fa-edit:before { content: "\f044"; }
+.fa-palette:before { content: "\f53f"; }
+.fa-home:before { content: "\f015"; }
+.fa-check-circle:before { content: "\f058"; }
+.fa-exclamation-triangle:before { content: "\f071"; }
+.fa-info-circle:before { content: "\f05a"; }
+.fa-times-circle:before { content: "\f057"; }
+
+/* 树形控件 */
+.fa-chevron-right:before { content: "\f054"; }
+.fa-chevron-down:before { content: "\f078"; }
+
+/* 用户与设备 */
+.fa-user:before { content: "\f007"; }
+.fa-user-plus:before { content: "\f234"; }
+.fa-user-edit:before { content: "\f4ff"; }
+.fa-user-cog:before { content: "\f4fe"; }
+.fa-users:before { content: "\f0c0"; }
+.fa-sign-in-alt:before { content: "\f2f6"; }
+.fa-sign-out-alt:before { content: "\f2f5"; }
+.fa-network-wired:before { content: "\f6ff"; }
+
+/* 主题与界面 */
+.fa-moon:before { content: "\f186"; }
+.fa-sun:before { content: "\f185"; }
+.fa-sync-alt:before { content: "\f2f1"; }
+.fa-tasks:before { content: "\f0ae"; }
+.fa-database:before { content: "\f1c0"; }
+.fa-cloud-upload-alt:before { content: "\f0ee"; }
+.fa-folder-plus:before { content: "\f65e"; }
+.fa-lock:before { content: "\f023"; }
+.fa-pen:before { content: "\f304"; }
+
+/* 天气 */
+
+/* 杂项（根据需要可继续添加） */
+.fa-reply:before { content: "\f3e5"; }
+.fa-ellipsis-h:before { content: "\f141"; }
+/* 补充缺失图标 */
+.fa-image:before { content: "\f302"; }
+.fa-file-import:before { content: "\f56f"; }
+.fa-folder-open:before { content: "\f07c"; }
+.fa-play:before { content: "\f04b"; }
+.fa-pause:before { content: "\f04c"; }
+.fa-image:before { content: "\f302"; }
+.fa-video:before { content: "\f03d"; }
+/* 补充标题栏按钮图标 */
+.fa-window-minimize:before { content: "\f2d1"; }
+.fa-window-maximize:before { content: "\f2d0"; }
+.fa-window-restore:before { content: "\f2d2"; }
+.fa-times:before { content: "\f00d"; }
+/* 简约标题栏图标补充 */
+.fa-minus:before { content: "\f068"; }          /* 最小化 */
+.fa-expand:before { content: "\f065"; }         /* 最大化 */
+.fa-compress:before { content: "\f066"; }       /* 还原 */
+.fa-xmark:before { content: "\f00d"; }          /* 关闭 */
+.fa-square:before { content: "\f0c8"; }
+.fa-window-restore:before { content: "\f2d2"; }
+.fa-square-o:before { content: "\f0c8"; font-family: 'Font Awesome 6 Free'; font-weight: 400; } /* 空心 */
+.fa-window-restore:before { content: "\f2d2"; }
+.fa-expand-alt:before { content: "\f424"; }
+.fa-compress-alt:before { content: "\f422"; }
+.fa-cloud-sun:before { content: "\f6c4"; }
+.fa-sun:before { content: "\f185"; }
+.fa-cloud-rain:before { content: "\f73d"; }
+.fa-snowflake:before { content: "\f2dc"; }
+.fa-cloud:before { content: "\f0c2"; }
+.fa-bolt:before { content: "\f0e7"; }
+.fa-wind:before { content: "\f72e"; }
+.fa-water:before { content: "\f043"; }   /* 或 \f773 */
+.fa-clock:before { content: "\f017"; }
+.fa-smog:before { content: "\f75f"; }
+
+/* 通话窗口 */
+.fa-phone:before { content: "\f095"; }
+.fa-phone-slash:before { content: "\f3dd"; }
+.fa-microphone:before { content: "\f130"; }
+.fa-microphone-slash:before { content: "\f539"; }
+.fa-arrow-right-arrow-left:before { content: "\f0ec"; }

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>作业管理系统 - 仪表板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 深色主题变量 */
+        :root {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            padding: 1.5rem;
+        }
+
+        /* 主容器 - 不滚动 */
+        .dashboard {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* 头部标题 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .time-info {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* 卡片网格 - 自适应，不滚动 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.2rem;
+            flex: 1;
+            overflow-y: auto;
+            max-height: calc(100vh - 100px);
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1rem 1.2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            transition: transform 0.1s ease, box-shadow 0.2s;
+            border: 1px solid var(--border-color);
+        }
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        .card-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+        .card-sub {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        /* 文件夹列表（带滚动） */
+        .folder-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 0.5rem;
+        }
+        .folder-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem 0;
+            font-size: 0.8rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .folder-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 70%;
+        }
+        .folder-count {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        /* 日志列表 */
+        .log-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .log-item {
+            padding: 0.4rem 0;
+            font-size: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 0.5rem;
+        }
+        .log-time {
+            color: var(--text-secondary);
+            min-width: 80px;
+        }
+        .log-action {
+            flex: 1;
+        }
+        .log-user {
+            color: var(--accent);
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .card-value { font-size: 1.5rem; }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<div class="dashboard">
+    <div class="header">
+        <h1><i class="fas fa-chart-line"></i> 作业管理系统 · 仪表板</h1>
+        <div class="time-info" id="last-update">加载中...</div>
+    </div>
+
+    <div class="stats-grid" id="stats-grid">
+        <!-- 卡片将通过 JavaScript 动态填充 -->
+    </div>
+</div>
+
+<script>
+    // 格式化时间（秒数转为 时:分:秒）
+    function formatUptime(seconds) {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        return `${h}h ${m}m ${s}s`;
+    }
+
+    // 格式化时间戳
+    function formatTime(timestamp) {
+        return new Date(timestamp).toLocaleTimeString();
+    }
+
+    // 更新数据
+    async function fetchStats() {
+        try {
+            const resp = await fetch('/api/stats');
+            const data = await resp.json();
+            updateUI(data);
+        } catch (err) {
+            console.error('获取统计数据失败', err);
+        }
+    }
+
+    async function fetchLogs() {
+        try {
+            const resp = await fetch('/api/operation_logs');
+            const logs = await resp.json();
+            updateLogs(logs);
+        } catch (err) {
+            console.error('获取操作日志失败', err);
+        }
+    }
+
+    function updateUI(data) {
+        const grid = document.getElementById('stats-grid');
+        // 构建卡片 HTML
+        grid.innerHTML = `
+            <!-- 在线用户卡片 -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-users"></i> 在线用户</div>
+                <div class="card-value">${data.online_users}</div>
+                <div class="card-sub">当前活跃用户</div>
+            </div>
+            <!-- 注册用户 -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-user-plus"></i> 注册用户</div>
+                <div class="card-value">${data.total_users}</div>
+                <div class="card-sub">总计</div>
+            </div>
+            <!-- 服务启动时间 -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-clock"></i> 服务运行时间</div>
+                <div class="card-value">${formatUptime(data.uptime)}</div>
+                <div class="card-sub">管理系统已运行</div>
+            </div>
+            <!-- 作业文件总数 -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-file-alt"></i> 作业文件总数</div>
+                <div class="card-value">${data.work_total_files}</div>
+                <div class="card-sub">所有作业文件夹</div>
+            </div>
+            <!-- 作业文件夹统计 -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-folder-tree"></i> 作业文件夹详情</div>
+                <div class="folder-list" id="folder-list">
+                    ${data.work_folders.slice(0, 10).map(f => `
+                        <div class="folder-item">
+                            <span class="folder-name" title="${f.name}">📁 ${escapeHtml(f.name)}</span>
+                            <span class="folder-count">${f.file_count} 个文件</span>
+                        </div>
+                    `).join('')}
+                </div>
+                ${data.work_folders.length > 10 ? '<div class="card-sub">仅显示前10个文件夹</div>' : ''}
+            </div>
+            <!-- 历史通知卡片 -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-bell"></i> 历史通知</div>
+                <div class="log-list">
+                    ${data.notifications.slice(0, 8).map(n => `
+                        <div class="log-item">
+                            <span class="log-time">${new Date(n.timestamp * 1000).toLocaleTimeString()}</span>
+                            <span class="log-action">${escapeHtml(n.msg)}</span>
+                        </div>
+                    `).join('')}
+                    ${data.notifications.length === 0 ? '<div class="card-sub">暂无通知</div>' : ''}
+                </div>
+            </div>
+        `;
+        document.getElementById('last-update').innerText = `最后更新: ${new Date().toLocaleTimeString()}`;
+    }
+
+    function updateLogs(logs) {
+        // 如果已有操作日志卡片，可以动态添加或替换，这里单独创建一个卡片（若不存在则追加）
+        let logsCard = document.querySelector('.stats-grid .card:last-child');
+        const existingLogCard = document.querySelector('.stats-grid .card[data-type="ops"]');
+        if (!existingLogCard) {
+            const grid = document.getElementById('stats-grid');
+            const opsCard = document.createElement('div');
+            opsCard.className = 'card';
+            opsCard.setAttribute('data-type', 'ops');
+            opsCard.innerHTML = `
+                <div class="card-title"><i class="fas fa-history"></i> 操作日志</div>
+                <div class="log-list" id="ops-log-list"></div>
+            `;
+            grid.appendChild(opsCard);
+        }
+        const logList = document.getElementById('ops-log-list') || document.querySelector('.card[data-type="ops"] .log-list');
+        if (logList) {
+            logList.innerHTML = logs.slice(-10).map(log => `
+                <div class="log-item">
+                    <span class="log-time">${escapeHtml(log.time)}</span>
+                    <span class="log-action">${escapeHtml(log.action)} ${escapeHtml(log.details)}</span>
+                    ${log.user ? `<span class="log-user">(${escapeHtml(log.user)})</span>` : ''}
+                </div>
+            `).join('');
+            if (logs.length === 0) logList.innerHTML = '<div class="card-sub">暂无操作日志</div>';
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // 初始化：定时刷新（每10秒）
+    fetchStats();
+    fetchLogs();
+    setInterval(() => {
+        fetchStats();
+        fetchLogs();
+    }, 10000);
+</script>
+</body>
+</html>

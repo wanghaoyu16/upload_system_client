@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>作业上传系统控制面板</title>
+<link rel="stylesheet" href="static/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="static/css/fontawesome.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:transparent;overflow:hidden;height:100vh}
+body{font-family:'Microsoft YaHei','微软雅黑','Segoe UI',sans-serif;color:#e2e8f0;user-select:none;display:flex;flex-direction:column}
+#titlebar{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 8px;-webkit-app-region:drag;background:transparent;margin:0}
+.titlebar-title{font-size:11px;color:#94a3b8;padding-left:4px}
+.titlebar-btns{display:flex;gap:2px;-webkit-app-region:no-drag}
+.titlebar-btn{width:28px;height:22px;border:none;border-radius:4px;cursor:pointer;font-size:11px;color:#94a3b8;background:transparent;font-family:inherit;display:flex;align-items:center;justify-content:center;transition:background 0.15s}
+.titlebar-btn:hover{background:rgba(255,255,255,0.1);color:#e2e8f0}
+#btn-pin,#btn-close{width:22px;height:22px;border-radius:50%}
+#btn-pin.pinned{color:#60a5fa}
+#btn-close:hover{background:rgba(239,68,68,0.5);color:#fff}
+.panel-body{flex:1;padding:10px 14px 12px;-webkit-app-region:no-drag;background:transparent}
+.ctrl-row{display:flex;align-items:center;gap:10px;background:transparent;border-radius:6px;padding:8px 12px}
+.ctrl-row>i{font-size:13px;color:#e2e8f0}
+.ctrl-row input[type=range]{flex:1;height:4px;-webkit-appearance:none;background:rgba(255,255,255,0.15);border-radius:2px;outline:none}
+.ctrl-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:#3b82f6;cursor:pointer}
+.opacity-val{font-size:12px;color:#e2e8f0;min-width:30px;text-align:right}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:transparent}
+.toggle-label{font-size:12px;color:#e2e8f0}
+.switch{position:relative;display:inline-block;width:36px;height:20px}
+.switch input{opacity:0;width:0;height:0}
+.switch .slider2{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.15);border-radius:10px;transition:0.2s}
+.switch .slider2:before{position:absolute;content:"";height:14px;width:14px;left:3px;bottom:3px;background:#94a3b8;border-radius:50%;transition:0.2s}
+.switch input:checked+.slider2{background:rgba(59,130,246,0.6)}
+.switch input:checked+.slider2:before{background:#fff;transform:translateX(16px)}
+.panel-btn{display:block;width:100%;padding:7px 12px;margin-top:6px;border:none;border-radius:999px;font-size:12px;cursor:pointer;font-family:inherit;color:#94a3b8;background:rgba(255,255,255,0.08);transition:background 0.15s;text-align:center}
+.panel-btn:hover{background:rgba(255,255,255,0.15);color:#e2e8f0}
+</style>
+</head>
+<body>
+<div id="titlebar">
+<span class="titlebar-title">作业上传系统控制面板</span>
+<div class="titlebar-btns">
+<button class="titlebar-btn" id="btn-pin" title="置顶"><i class="fa-solid fa-thumbtack"></i></button>
+<button class="titlebar-btn" id="btn-close" title="关闭"><i class="fa-solid fa-xmark"></i></button>
+</div>
+</div>
+<div class="panel-body">
+<div class="ctrl-row">
+<i class="fa-solid fa-droplet"></i>
+<input type="range" id="opacity-slider" min="1" max="100" value="10">
+<span class="opacity-val" id="opacity-val">10%</span>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">穿透主窗口</span>
+<label class="switch"><input type="checkbox" id="main-clickthrough-toggle"><span class="slider2"></span></label>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">深色模式</span>
+<label class="switch"><input type="checkbox" id="dark-mode-toggle"><span class="slider2"></span></label>
+</div>
+<button class="panel-btn" id="btn-toggle-main">显示/隐藏主窗口</button>
+<button class="panel-btn" id="btn-refocus-main">重新置顶主窗口</button>
+</div>
+<script>
+var API = window.electronAPI || {};
+var slider = document.getElementById('opacity-slider');
+var valEl = document.getElementById('opacity-val');
+var btnPin = document.getElementById('btn-pin');
+var btnClose = document.getElementById('btn-close');
+var mainClickThroughToggle = document.getElementById('main-clickthrough-toggle');
+var darkModeToggle = document.getElementById('dark-mode-toggle');
+var btnToggleMain = document.getElementById('btn-toggle-main');
+var btnRefocusMain = document.getElementById('btn-refocus-main');
+
+if (API.getWindowClickThrough) {
+  API.getWindowClickThrough().then(function(v) {
+    mainClickThroughToggle.checked = !!v;
+  }).catch(function() {});
+}
+
+if (API.getWindowOpacity) {
+  API.getWindowOpacity().then(function(v) {
+    var pct = Math.round(v * 100);
+    slider.value = pct;
+    valEl.textContent = pct + '%';
+  }).catch(function() {});
+}
+
+slider.addEventListener('input', function() {
+  var pct = parseInt(this.value);
+  valEl.textContent = pct + '%';
+  if (API.setWindowOpacity) API.setWindowOpacity(pct / 100);
+});
+
+if (darkModeToggle && API.getDarkMode) {
+  API.getDarkMode().then(function(v) { darkModeToggle.checked = !!v; }).catch(function() {});
+  if (API.onDarkModeChanged) {
+    API.onDarkModeChanged(function(v) { darkModeToggle.checked = !!v; });
+  }
+  darkModeToggle.addEventListener('change', function(e) {
+    e.stopPropagation();
+    if (API.setDarkMode) API.setDarkMode(this.checked);
+  });
+}
+
+btnPin.addEventListener('click', function(e) {
+  e.stopPropagation();
+  if (API.setDevPanelAlwaysOnTop) {
+    var pinned = btnPin.classList.contains('pinned');
+    API.setDevPanelAlwaysOnTop(!pinned);
+    if (!pinned) btnPin.classList.add('pinned');
+    else btnPin.classList.remove('pinned');
+  }
+});
+
+if (API.isDevPanelAlwaysOnTop) {
+  API.isDevPanelAlwaysOnTop().then(function(v) {
+    if (v) btnPin.classList.add('pinned');
+  }).catch(function() {});
+}
+
+if (API.onWindowOpacityChanged) {
+  API.onWindowOpacityChanged(function(val) {
+    var pct = Math.round(val * 100);
+    slider.value = pct;
+    valEl.textContent = pct + '%';
+  });
+}
+
+btnClose.addEventListener('click', function(e) {
+  e.stopPropagation();
+  if (API.closeDevPanel) API.closeDevPanel();
+});
+mainClickThroughToggle.addEventListener('change', function(e) {
+  e.stopPropagation();
+  if (API.setMainWindowClickThrough) API.setMainWindowClickThrough(this.checked);
+});
+
+if (API.onClickThroughStateChanged) {
+  API.onClickThroughStateChanged(function(enabled) {
+    mainClickThroughToggle.checked = !!enabled;
+  });
+}
+
+btnToggleMain.addEventListener('click', function(e) {
+  e.stopPropagation();
+  if (API.toggleMainWindow) API.toggleMainWindow();
+});
+
+btnRefocusMain.addEventListener('click', function(e) {
+  e.stopPropagation();
+  if (API.refocusMainWindow) API.refocusMainWindow();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>语音通话</title>
+<link rel="stylesheet" href="static/css/fontawesome.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  user-select: none;
+  overflow: hidden;
+  border-radius: 8px;
+}
+.titlebar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 32px;
+  padding: 0 8px;
+  -webkit-app-region: drag;
+  z-index: 2;
+  flex-shrink: 0;
+}
+.titlebar-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: no-drag;
+  transition: background 0.15s, color 0.15s;
+}
+.titlebar-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.titlebar-btn.close:hover { background: rgba(220,38,38,0.8); color: #fff; }
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1;
+  -webkit-app-region: drag;
+}
+.glass-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(20, 25, 35, 0.8);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 8px;
+  z-index: 0;
+}
+.caller-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--theme);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+.caller-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 8px;
+  text-align: center;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.status-text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  margin-bottom: 36px;
+  text-align: center;
+}
+.ring-indicator {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 40px;
+  height: 16px;
+  align-items: center;
+}
+.ring-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+}
+.actions {
+  display: flex;
+  gap: 80px;
+  margin-top: auto;
+  margin-bottom: 40px;
+  -webkit-app-region: no-drag;
+}
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+.btn:hover { transform: scale(1.08); }
+.btn:active { transform: scale(0.95); }
+.btn-reject {
+  background: rgba(220, 38, 38, 0.85);
+  color: #fff;
+}
+.btn-reject:hover { background: rgba(220, 38, 38, 1); }
+.btn-answer {
+  background: rgba(34, 197, 94, 0.85);
+  color: #fff;
+}
+.btn-answer:hover { background: rgba(34, 197, 94, 1); }
+.btn-hangup {
+  background: rgba(220, 38, 38, 0.85);
+  color: #fff;
+}
+.btn-hangup:hover { background: rgba(220, 38, 38, 1); }
+.btn-mute {
+  background: rgba(107, 114, 128, 0.85);
+  color: #fff;
+}
+.btn-mute:hover { background: rgba(107, 114, 128, 1); }
+.btn-mute.active {
+  background: rgba(234, 179, 8, 0.85);
+}
+.btn-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.75);
+}
+.hidden { display: none !important; }
+.call-timer {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 30px;
+  font-variant-numeric: tabular-nums;
+  font-family: 'Consolas', 'Courier New', monospace;
+}
+.experimental-notice {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  text-align: center;
+  line-height: 1.6;
+  margin-top: 12px;
+  -webkit-app-region: no-drag;
+}
+</style>
+</head>
+<body>
+<div class="glass-bg"></div>
+<div class="titlebar">
+  <button class="titlebar-btn" id="btnMinimize" title="最小化"><i class="fa-solid fa-minus"></i></button>
+  <button class="titlebar-btn close" id="btnClose" title="关闭"><i class="fa-solid fa-xmark"></i></button>
+</div>
+<div class="main-area">
+  <div class="caller-avatar" id="callerAvatar">?</div>
+  <div class="caller-name" id="callerName">未知来电</div>
+  <div class="status-text" id="statusText">邀请你语音通话...</div>
+  <div class="ring-indicator" id="ringIndicator">
+    <div class="ring-dot"></div><div class="ring-dot"></div>
+    <div class="ring-dot"></div><div class="ring-dot"></div><div class="ring-dot"></div>
+  </div>
+  <div class="call-timer hidden" id="callTimer">00:00</div>
+  <div class="actions" id="actionsIncoming">
+    <div class="action-item">
+      <button class="btn btn-reject" id="btnReject" title="拒绝"><i class="fa-solid fa-phone-slash"></i></button>
+      <div class="btn-label">拒绝</div>
+    </div>
+    <div class="action-item">
+      <button class="btn btn-answer" id="btnAnswer" title="接听"><i class="fa-solid fa-phone"></i></button>
+      <div class="btn-label">接听</div>
+    </div>
+  </div>
+  <div class="actions hidden" id="actionsOngoing">
+    <div class="action-item">
+      <button class="btn btn-mute" id="btnMute" title="静音"><i class="fa-solid fa-microphone"></i></button>
+      <div class="btn-label">静音</div>
+    </div>
+    <div class="action-item">
+      <button class="btn btn-hangup" id="btnHangup" title="挂断"><i class="fa-solid fa-phone-slash"></i></button>
+      <div class="btn-label">挂断</div>
+    </div>
+  </div>
+  <div class="experimental-notice hidden" id="experimentalNotice">通话为实验性功能<br>不能与 Agora 建立连接，目前只能挂断或者关闭</div>
+</div>
+<audio id="ringAudio" loop preload="auto"></audio>
+<script>
+(function() {
+  var API = window.electronAPI;
+  var ringAudio = document.getElementById('ringAudio');
+  var callerName = document.getElementById('callerName');
+  var statusText = document.getElementById('statusText');
+  var ringIndicator = document.getElementById('ringIndicator');
+  var callTimer = document.getElementById('callTimer');
+  var actionsIncoming = document.getElementById('actionsIncoming');
+  var actionsOngoing = document.getElementById('actionsOngoing');
+  var btnMinimize = document.getElementById('btnMinimize');
+  var btnClose = document.getElementById('btnClose');
+  var btnReject = document.getElementById('btnReject');
+  var btnAnswer = document.getElementById('btnAnswer');
+  var btnMute = document.getElementById('btnMute');
+  var btnHangup = document.getElementById('btnHangup');
+  var muteIcon = btnMute ? btnMute.querySelector('i') : null;
+  var isMuted = false;
+  var timerInterval = null;
+  var callStartTime = 0;
+  var agoraToken = '';
+  var agoraAppId = '';
+  var channelName = '';
+  var localUid = '';
+  var isOutgoing = false;
+
+  function clog(msg) {
+    console.log('[CallWindow]', msg);
+    if (API && API.callWindowLog) API.callWindowLog(msg);
+  }
+
+  // 标题栏按钮
+  if (btnMinimize && API && API.callWindowMinimize) {
+    btnMinimize.addEventListener('click', function() { API.callWindowMinimize(); });
+  }
+  if (btnClose && API && API.closeCallWindow) {
+    btnClose.addEventListener('click', function() {
+      stopRing();
+      stopCallTimer();
+      API.closeCallWindow();
+    });
+  }
+
+  // 接收来电信息
+  if (API && API.onCallInfo) {
+    API.onCallInfo(function(data) {
+      if (data && data.callInfo) {
+        if (data.callInfo.callerName) {
+          callerName.textContent = data.callInfo.callerName;
+          var avatarEl = document.getElementById('callerAvatar');
+          if (avatarEl) avatarEl.textContent = data.callInfo.callerName.charAt(0);
+        }
+        if (data.callInfo.channelName) channelName = data.callInfo.channelName;
+        if (data.callInfo.localUid) localUid = String(data.callInfo.localUid);
+        if (data.callInfo.agoraToken) agoraToken = data.callInfo.agoraToken;
+        if (data.callInfo.agoraAppId) agoraAppId = data.callInfo.agoraAppId;
+        isOutgoing = !!data.callInfo.isOutgoing;
+      }
+      if (data && data.agoraToken) agoraToken = data.agoraToken;
+      if (data && data.agoraAppId) agoraAppId = data.agoraAppId;
+      clog('callInfo: channel=' + channelName + ' appId=' + (agoraAppId ? agoraAppId.substring(0,8) : '无') + ' token=' + (agoraToken ? '有' : '无') + ' outgoing=' + isOutgoing);
+      if (isOutgoing) {
+        statusText.textContent = '正在呼叫...';
+        actionsIncoming.classList.add('hidden');
+        actionsOngoing.classList.remove('hidden');
+        ringIndicator.classList.add('hidden');
+        joinAgoraChannel();
+      } else if (data && data.ringPath) {
+        startRing(data.ringPath);
+      }
+    });
+  }
+
+  // 播放铃声
+  function startRing(ringPath) {
+    if (!ringPath) {
+      console.error('[CallWindow] 铃声路径为空');
+      return;
+    }
+    console.log('[CallWindow] 铃声路径:', ringPath);
+    ringAudio.src = ringPath;
+    ringAudio.load();
+    ringAudio.play().then(function() {
+      console.log('[CallWindow] 铃声开始播放');
+    }).catch(function(err) {
+      console.error('[CallWindow] 铃声播放失败:', err);
+    });
+  }
+
+  btnReject.addEventListener('click', function() {
+    stopRing();
+    if (API && API.sendCallAction) API.sendCallAction('reject');
+    if (API && API.closeCallWindow) API.closeCallWindow();
+  });
+
+  btnAnswer.addEventListener('click', async function() {
+    stopRing();
+    if (API && API.sendCallAction) API.sendCallAction('answer');
+    await joinAgoraChannel();
+  });
+
+  btnMute.addEventListener('click', function() {
+    isMuted = !isMuted;
+    if (isMuted) {
+      btnMute.classList.add('active');
+      btnMute.nextElementSibling.textContent = '取消静音';
+      if (muteIcon) { muteIcon.className = 'fa-solid fa-microphone-slash'; }
+      if (localAudioTrack) localAudioTrack.setEnabled(false);
+    } else {
+      btnMute.classList.remove('active');
+      btnMute.nextElementSibling.textContent = '静音';
+      if (muteIcon) { muteIcon.className = 'fa-solid fa-microphone'; }
+      if (localAudioTrack) localAudioTrack.setEnabled(true);
+    }
+    if (API && API.sendCallAction) API.sendCallAction(isMuted ? 'mute' : 'unmute');
+  });
+
+  btnHangup.addEventListener('click', function() {
+    stopRing();
+    stopCallTimer();
+    leaveAgoraChannel();
+    if (API && API.sendCallAction) API.sendCallAction('hangup');
+    if (API && API.closeCallWindow) API.closeCallWindow();
+  });
+
+  function stopRing() {
+    try { ringAudio.pause(); ringAudio.currentTime = 0; } catch(e) {}
+    ringIndicator.classList.add('hidden');
+  }
+
+  function startCall() {
+    actionsIncoming.classList.add('hidden');
+    actionsOngoing.classList.remove('hidden');
+    statusText.textContent = '通话中...';
+    callStartTime = Date.now();
+    callTimer.classList.remove('hidden');
+    timerInterval = setInterval(updateTimer, 1000);
+    updateTimer();
+  }
+
+  function updateTimer() {
+    var elapsed = Math.floor((Date.now() - callStartTime) / 1000);
+    var mins = Math.floor(elapsed / 60);
+    var secs = elapsed % 60;
+    callTimer.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+  }
+
+  function stopCallTimer() {
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  }
+
+  async function joinAgoraChannel() {
+    var AgoraRTC = window.AgoraRTC;
+    if (!AgoraRTC) {
+      clog('AgoraRTC 未加载');
+      statusText.textContent = 'Agora SDK 加载失败';
+      return;
+    }
+    if (!agoraAppId || !channelName) {
+      clog('缺少参数 appId=' + agoraAppId + ' channel=' + channelName);
+      statusText.textContent = '通话连接失败（缺少参数）';
+      return;
+    }
+    try {
+      statusText.textContent = '正在建立通话连接...';
+      clog('开始加入频道: ' + channelName + ' appId=' + agoraAppId.substring(0, 8) + '...');
+      agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+      agoraClient.on('user-published', async function(user, mediaType) {
+        await agoraClient.subscribe(user, mediaType);
+        if (mediaType === 'audio') {
+          user.audioTrack.play();
+          clog('远端音频已播放, uid=' + user.uid);
+        }
+      });
+      agoraClient.on('user-unpublished', function(user) {
+        clog('远端用户离开: ' + user.uid);
+      });
+      await agoraClient.join(agoraAppId, channelName, agoraToken || null, localUid || null);
+      clog('加入频道成功');
+      localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+      await agoraClient.publish(localAudioTrack);
+      clog('本地音频已发布');
+      startCall();
+    } catch(err) {
+      clog('加入失败: ' + (err.message || err));
+      statusText.textContent = '通话为实验性功能，不能与 Agora 建立连接，目前只能挂断或者关闭';
+    }
+  }
+
+  function leaveAgoraChannel() {
+    try {
+      if (localAudioTrack) { localAudioTrack.close(); localAudioTrack = null; }
+      if (agoraClient) { agoraClient.leave(); agoraClient = null; }
+      clog('已离开频道');
+    } catch(e) { clog('离开频道失败: ' + e); }
+  }
+
+  if (API && API.onCallWindowClosed) {
+    API.onCallWindowClosed(function() {
+      stopRing();
+      stopCallTimer();
+      leaveAgoraChannel();
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作业管理系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-body: #f0f2f5;
+            --bg-card: #ffffff;
+            --text-primary: #1a1f36;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --hover-bg: #f1f5f9;
+            --btn-primary-bg: #3b82f6;
+            --btn-primary-hover: #2563eb;
+            --btn-danger-bg: #fee2e2;
+            --btn-danger-color: #b91c1c;
+            --input-bg: #ffffff;
+            --input-border: #cbd5e1;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --uploader-bg: #eef2f6;
+        }
+
+        body.dark {
+            --bg-body: #1a1a2e;
+            --bg-card: #16213e;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --border-color: #2d3748;
+            --hover-bg: #1f2937;
+            --btn-primary-bg: #3b82f6;
+            --btn-primary-hover: #2563eb;
+            --btn-danger-bg: #7f1a1a;
+            --btn-danger-color: #fecaca;
+            --input-bg: #0f172a;
+            --input-border: #334155;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --uploader-bg: #2d3748;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            padding: 2rem 1rem;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .header-actions { display: flex; gap: 1rem; align-items: center; }
+        .theme-btn {
+            background: var(--btn-primary-bg);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 0.5rem 0.5rem 0 0;
+            color: var(--text-primary);
+            transition: color 0.2s, background 0.2s;
+        }
+        .tab-btn:hover { color: var(--btn-primary-bg); }
+        .tab-btn.active {
+            background: var(--bg-card);
+            border-bottom: 2px solid var(--btn-primary-bg);
+            font-weight: bold;
+        }
+        .tab-pane {
+            display: none;
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: box-shadow 0.3s;
+        }
+        .tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
+        .toolbar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .btn {
+            background: #eef2ff;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+        body.dark .btn { background: #2d3748; }
+        .btn-primary { background: var(--btn-primary-bg); color: white; }
+        .btn-danger { background: var(--btn-danger-bg); color: var(--btn-danger-color); }
+        .tree-node { margin-left: 1.5rem; }
+        .tree-node-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3rem;
+            border-radius: 0.5rem;
+            flex-wrap: wrap;
+            cursor: pointer;
+        }
+        .tree-node-item:hover { background: var(--hover-bg); }
+        .toggle-icon { cursor: pointer; width: 1.2rem; text-align: center; }
+        .node-name { cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem; }
+        .actions { margin-left: auto; display: flex; gap: 0.3rem; }
+        .file-list { margin-left: 1.8rem; list-style: none; }
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.2rem 0;
+            flex-wrap: wrap;
+        }
+        .file-size, .uploader-badge {
+            font-size: 0.7rem;
+            background: var(--uploader-bg);
+            padding: 0.1rem 0.4rem;
+            border-radius: 1rem;
+            color: var(--text-secondary);
+        }
+        .empty-state { text-align: center; color: var(--text-secondary); padding: 2rem; }
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .users-table th, .users-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .users-table th {
+            background: var(--hover-bg);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border-color);
+        }
+        .users-table td {
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        .users-table tbody tr { transition: background 0.2s; }
+        .users-table tbody tr:hover { background: var(--hover-bg); }
+        .user-avatar-cell {
+            width: 48px;
+            padding-right: 0 !important;
+        }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #1a1a2e;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        .user-avatar-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-weight: 600; }
+        .user-nick { font-size: 0.8rem; color: var(--text-secondary); }
+        .user-actions { display: flex; gap: 0.5rem; align-items: center; }
+        .dev-toggle {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid;
+            transition: all 0.2s;
+            background: transparent;
+        }
+        .dev-toggle.on {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        .dev-toggle.off {
+            color: var(--text-secondary);
+            border-color: var(--border-color);
+        }
+        .recycle-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 320px;
+        }
+        .toast {
+            background: #323232;
+            color: white;
+            padding: 12px 16px;
+            margin-top: 8px;
+            border-radius: 8px;
+            animation: toastIn 0.35s ease;
+            transition: opacity 0.4s, transform 0.4s;
+        }
+        .toast.fade-out { opacity: 0; transform: translateX(50px); }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .progress-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .progress-overlay.show { display: flex; }
+        .progress-card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+        }
+        .progress-card h3 { margin-bottom: 0.5rem; }
+        .progress-card .filename {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            word-break: break-all;
+        }
+        .progress-bar-track {
+            width: 100%;
+            height: 12px;
+            background: var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+            border-radius: 6px;
+            transition: width 0.2s ease;
+        }
+        .progress-card .stats {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .btn { transition: all 0.2s; }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+        .users-table tbody tr { transition: background 0.2s; }
+        .users-table tbody tr:hover { background: var(--hover-bg); }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-content h3 { margin-bottom: 1rem; }
+        .modal-content input, .modal-content button {
+            width: 100%;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-primary);
+        }
+        .modal-content button {
+            background: var(--btn-primary-bg);
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        .modal-content button:hover { background: var(--btn-primary-hover); }
+
+        /* 文件夹树样式 */
+        .folder-tree ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+        .folder-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .folder-item:hover { background: var(--hover-bg); }
+        .folder-item.selected { background: #eef2ff; color: var(--btn-primary-bg); }
+        body.dark .folder-item.selected { background: #2d3748; color: #3b82f6; }
+        .network-status {
+            font-size: 0.7rem;
+            background: #eef2ff;
+            padding: 0.2rem 0.5rem;
+            border-radius: 1rem;
+            margin-left: 0.5rem;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-tasks"></i> 作业管理系统</h1>
+        <div class="header-actions">
+            <div id="network-status" class="network-status">本机管理</div>
+            <button id="refresh-btn" class="theme-btn"><i class="fas fa-sync-alt"></i> 刷新</button>
+            <button id="theme-toggle" class="theme-btn"><i class="fas fa-moon"></i> 深色</button>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="work"><i class="fas fa-folder-open"></i> 作业文件夹</button>
+        <button class="tab-btn" data-tab="resource"><i class="fas fa-database"></i> 素材文件夹</button>
+        <button class="tab-btn" data-tab="recycle"><i class="fas fa-trash-alt"></i> 回收站</button>
+        <button class="tab-btn" data-tab="users"><i class="fas fa-users"></i> 用户列表</button>
+    </div>
+
+    <div id="work-tab" class="tab-pane active">
+        <div id="work-tree">加载中...</div>
+    </div>
+
+    <div id="resource-tab" class="tab-pane">
+        <div class="toolbar">
+            <button id="new-folder-resource-root" class="btn btn-primary"><i class="fas fa-plus"></i> 新建文件夹</button>
+            <button id="upload-resource-root" class="btn btn-primary"><i class="fas fa-upload"></i> 上传文件</button>
+        </div>
+        <div id="resource-tree">加载中...</div>
+    </div>
+
+    <div id="recycle-tab" class="tab-pane">
+        <div id="recycle-list">加载中...</div>
+    </div>
+
+    <div id="users-tab" class="tab-pane">
+        <div id="users-list">加载中...</div>
+    </div>
+</div>
+
+<div class="progress-overlay" id="progress-overlay">
+    <div class="progress-card">
+        <h3><i class="fas fa-cloud-upload-alt"></i> 正在上传</h3>
+        <div class="filename" id="progress-filename"></div>
+        <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+        </div>
+        <div class="stats">
+            <span id="progress-percent">0%</span>
+            &nbsp;|&nbsp;
+            <span id="progress-speed">—</span>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<!-- 编辑用户模态框 -->
+<div id="edit-user-modal" class="modal">
+    <div class="modal-content">
+        <h3><i class="fas fa-user-edit"></i> 编辑用户</h3>
+        <input type="text" id="edit-realname" placeholder="真实姓名">
+        <input type="text" id="edit-nickname" placeholder="昵称（可选）">
+        <input type="password" id="edit-password" placeholder="新密码（留空则不修改）">
+        <input type="password" id="edit-confirm-password" placeholder="确认新密码">
+        <button id="edit-user-submit">保存修改</button>
+        <button id="close-edit-modal" style="background: #6c757d;">关闭</button>
+    </div>
+</div>
+
+<!-- 移动文件模态框 -->
+<div id="move-file-modal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <h3><i class="fas fa-folder-open"></i> 选择目标文件夹</h3>
+        <div id="folder-tree-container" class="folder-tree" style="max-height: 300px; overflow-y: auto; margin: 10px 0;"></div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button id="move-confirm" class="btn btn-primary">确认移动</button>
+            <button id="move-cancel" class="btn">取消</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 主题切换
+    const themeBtn = document.getElementById('theme-toggle');
+    function setTheme(theme) {
+        if (theme === 'dark') {
+            document.body.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+            themeBtn.innerHTML = '<i class="fas fa-sun"></i> 浅色';
+        } else {
+            document.body.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+            themeBtn.innerHTML = '<i class="fas fa-moon"></i> 深色';
+        }
+    }
+    if (localStorage.getItem('theme') === 'dark') setTheme('dark');
+    themeBtn.addEventListener('click', () => {
+        setTheme(document.body.classList.contains('dark') ? 'light' : 'dark');
+    });
+
+    // 刷新按钮（防抖 + 防并发，避免频繁点击导致连接中断）
+    let _refreshTimer = null;
+    let _refreshing = false;
+    document.getElementById('refresh-btn').addEventListener('click', () => {
+        if (_refreshing) return;
+        clearTimeout(_refreshTimer);
+        _refreshTimer = setTimeout(async () => {
+            _refreshing = true;
+            document.getElementById('refresh-btn').disabled = true;
+            try {
+                const activeTab = document.querySelector('.tab-btn.active')?.getAttribute('data-tab');
+                if (activeTab === 'work') await loadWorkTree();
+                else if (activeTab === 'resource') await loadResourceTree();
+                else if (activeTab === 'recycle') await loadRecycle();
+                else if (activeTab === 'users') await loadUsers();
+            } finally {
+                _refreshing = false;
+                document.getElementById('refresh-btn').disabled = false;
+            }
+        }, 300);
+    });
+
+    // 通知轮询
+    let lastNotificationId = 0;
+    (async function initNotificationId() {
+        try {
+            const resp = await fetch('/api/notifications');
+            const notes = await resp.json();
+            if (notes.length > 0) lastNotificationId = Math.max(...notes.map(n => n.id));
+        } catch(e) {}
+    })();
+    function showToast(msg) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerText = msg;
+        container.appendChild(toast);
+        setTimeout(() => toast.classList.add('fade-out'), 4000);
+        toast.addEventListener('transitionend', () => toast.remove());
+    }
+    async function pollNotifications() {
+        try {
+            const resp = await fetch('/api/notifications');
+            const notes = await resp.json();
+            for (let n of notes) {
+                if (n.id > lastNotificationId) {
+                    showToast(n.msg);
+                    lastNotificationId = n.id;
+                }
+            }
+        } catch(e) {}
+        setTimeout(pollNotifications, 1500);
+    }
+    pollNotifications();
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m));
+    }
+
+    // ==================== 作业树 ====================
+    async function loadWorkTree() { await loadWorkDirectory('', document.getElementById('work-tree')); }
+    async function loadWorkDirectory(relPath, container) {
+        const url = `/api/list_dir?path=${encodeURIComponent(relPath)}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        if (data.error) {
+            container.innerHTML = `<div class="empty-state">${escapeHtml(data.error)}</div>`;
+            return;
+        }
+        renderWorkNode(data, relPath, container);
+    }
+    function renderWorkNode(data, currentPath, container) {
+        let html = `<div class="tree-node" data-path="${currentPath}">`;
+        const rootLabel = currentPath ? currentPath : '作业根目录';
+        const rootReadonly = data.readonly;
+        html += `<div class="tree-node-root" style="padding:6px 0;font-weight:600;color:var(--text-primary);border-bottom:1px solid var(--border);margin-bottom:8px;">
+            <i class="fas fa-folder"></i> ${escapeHtml(rootLabel)}
+            ${rootReadonly ? '<span style="color:#e74c3c;font-size:12px;margin-left:8px;"><i class="fas fa-lock"></i> 只读</span>' : ''}
+        </div>`;
+        if (!data.dirs.length && !data.files.length && !currentPath) {
+            html += `<div class="empty-state">文件夹为空</div>`;
+        } else {
+            for (let dir of data.dirs) {
+                const isReadonly = dir.permission === 'ro';
+                html += `
+                    <div class="tree-node-item" data-folder-path="${dir.path}">
+                        <span class="toggle-icon" data-type="work" data-path="${dir.path}" data-expanded="false"><i class="fas fa-chevron-right"></i></span>
+                        <span class="node-name" data-type="work" data-path="${dir.path}"><i class="fas fa-folder"></i> ${escapeHtml(dir.name)}</span>
+                        <div class="actions">
+                            <button class="new-subfolder-btn btn btn-sm" data-path="${dir.path}"><i class="fas fa-folder-plus"></i> 新建</button>
+                            <button class="perm-btn btn btn-sm" data-path="${dir.path}" data-mode="${isReadonly ? 'ro' : 'rw'}">
+                                ${isReadonly ? '<i class="fas fa-lock"></i> 只读' : '<i class="fas fa-pen"></i> 可读写'}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="tree-node-children" data-type="work" data-path="${dir.path}" style="display:none;"></div>
+                `;
+            }
+            if (data.files.length) {
+                html += `<ul class="file-list">`;
+                for (let file of data.files) {
+                    const downloadUrl = `/api/download_work?rel_path=${encodeURIComponent(currentPath)}&filename=${encodeURIComponent(file.name)}`;
+                    html += `<li class="file-item">
+                        <i class="fas fa-file"></i> <span>${escapeHtml(file.name)}</span>
+                        <span class="file-size">${(file.size/1024).toFixed(1)} KB</span>
+                        ${file.uploader ? `<span class="uploader-badge">${escapeHtml(file.uploader)} 上传</span>` : ''}
+                        <div class="actions">
+                            <a href="${downloadUrl}" class="btn btn-sm"><i class="fas fa-download"></i> 下载</a>
+                            <button class="rename-work-btn btn btn-sm" data-rel-path="${currentPath}" data-name="${escapeHtml(file.name)}"><i class="fas fa-edit"></i> 重命名</button>
+                            <button class="delete-work-btn btn btn-sm btn-danger" data-rel-path="${currentPath}" data-name="${escapeHtml(file.name)}"><i class="fas fa-trash-alt"></i> 删除</button>
+                            <button class="move-work-btn btn btn-sm" data-rel-path="${currentPath}" data-name="${escapeHtml(file.name)}"><i class="fas fa-folder-open"></i> 移动</button>
+                        </div>
+                    </li>`;
+                }
+                html += `</ul>`;
+            }
+        }
+        html += `</div>`;
+        container.innerHTML = html;
+
+        // 绑定事件（展开/折叠、新建、权限、重命名、删除、移动）
+        document.querySelectorAll(`.toggle-icon[data-type="work"]`).forEach(icon => {
+            icon.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const path = icon.getAttribute('data-path');
+                const isExpanded = icon.getAttribute('data-expanded') === 'true';
+                const childrenDiv = document.querySelector(`.tree-node-children[data-type="work"][data-path="${path}"]`);
+                if (!isExpanded) {
+                    icon.innerHTML = '<i class="fas fa-chevron-down"></i>';
+                    icon.setAttribute('data-expanded', 'true');
+                    childrenDiv.style.display = 'block';
+                    if (childrenDiv.innerHTML === '') {
+                        childrenDiv.innerHTML = '加载中...';
+                        const resp = await fetch(`/api/list_dir?path=${encodeURIComponent(path)}`);
+                        const subData = await resp.json();
+                        if (subData.error) childrenDiv.innerHTML = `<div class="empty-state">${escapeHtml(subData.error)}</div>`;
+                        else renderWorkNode(subData, path, childrenDiv);
+                    }
+                } else {
+                    icon.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                    icon.setAttribute('data-expanded', 'false');
+                    childrenDiv.style.display = 'none';
+                }
+            });
+        });
+        document.querySelectorAll(`.node-name[data-type="work"]`).forEach(name => {
+            name.addEventListener('click', (e) => {
+                const path = name.getAttribute('data-path');
+                const toggleIcon = document.querySelector(`.toggle-icon[data-type="work"][data-path="${path}"]`);
+                if (toggleIcon) toggleIcon.click();
+            });
+        });
+        // 新建子文件夹
+        document.querySelectorAll('.new-subfolder-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const path = btn.getAttribute('data-path');
+                const name = prompt('请输入新文件夹名称:');
+                if (!name) return;
+                const resp = await fetch('/api/mkdir', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'work', path, name }) });
+                const data = await resp.json();
+                if (data.success) { alert('创建成功'); loadWorkTree(); }
+                else alert('创建失败: ' + data.error);
+            });
+        });
+        // 权限切换
+        document.querySelectorAll('.perm-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const path = btn.getAttribute('data-path');
+                const currentMode = btn.getAttribute('data-mode');
+                const newMode = currentMode === 'rw' ? 'ro' : 'rw';
+                if (!confirm(`确定将文件夹 "${path}" 权限设置为 ${newMode === 'rw' ? '可读写' : '只读'} 吗？`)) return;
+                const resp = await fetch('/api/permissions/set', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path, mode: newMode }) });
+                const data = await resp.json();
+                if (data.success) { alert('权限修改成功'); loadWorkTree(); }
+                else alert('修改失败: ' + data.error);
+            });
+        });
+        // 重命名
+        document.querySelectorAll('.rename-work-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const relPath = btn.getAttribute('data-rel-path');
+                const oldName = btn.getAttribute('data-name');
+                let newName = prompt('请输入新文件名（扩展名将自动保留）:', oldName);
+                if (!newName || newName === oldName) return;
+                const ext = oldName.substring(oldName.lastIndexOf('.'));
+                if (!newName.endsWith(ext)) newName += ext;
+                const resp = await fetch('/api/rename_work', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rel_path: relPath, old_name: oldName, new_name: newName }) });
+                const data = await resp.json();
+                if (data.success) { alert('重命名成功'); loadWorkTree(); }
+                else alert('重命名失败: ' + data.error);
+            });
+        });
+        // 删除
+        document.querySelectorAll('.delete-work-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const relPath = btn.getAttribute('data-rel-path');
+                const name = btn.getAttribute('data-name');
+                if (!confirm(`确定将文件 "${name}" 移动到回收站吗？`)) return;
+                const resp = await fetch('/api/delete_work', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rel_path: relPath, name }) });
+                const data = await resp.json();
+                if (data.success) { alert('已移至回收站'); loadWorkTree(); }
+                else alert('删除失败: ' + data.error);
+            });
+        });
+        // 移动（打开模态框）
+        document.querySelectorAll('.move-work-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const relPath = btn.getAttribute('data-rel-path');
+                const filename = btn.getAttribute('data-name');
+                currentMoveFile = { relPath, filename };
+                // 渲染文件夹树（可展开任意子文件夹）
+                const container = document.getElementById('folder-tree-container');
+                await renderFolderTree(container, '');
+                document.getElementById('move-file-modal').style.display = 'flex';
+            });
+        });
+        // 双击展开
+        document.querySelectorAll('.tree-node-item[data-folder-path]').forEach(item => {
+            item.addEventListener('dblclick', (e) => {
+                const folderPath = item.getAttribute('data-folder-path');
+                const toggleIcon = document.querySelector(`.toggle-icon[data-type="work"][data-path="${folderPath}"]`);
+                if (toggleIcon) toggleIcon.click();
+            });
+        });
+    }
+
+    // ==================== 素材树 ====================
+    async function loadResourceTree() { await loadResourceDirectory('', document.getElementById('resource-tree')); }
+    async function loadResourceDirectory(relPath, container) {
+        const url = `/api/resource_list_dir?path=${encodeURIComponent(relPath)}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        if (data.error) {
+            container.innerHTML = `<div class="empty-state">${escapeHtml(data.error)}</div>`;
+            return;
+        }
+        renderResourceNode(data, relPath, container);
+    }
+    function renderResourceNode(data, currentPath, container) {
+        let html = `<div class="tree-node" data-path="${currentPath}">`;
+        const rootLabel = currentPath ? currentPath : '素材根目录';
+        html += `<div class="tree-node-root" style="padding:6px 0;font-weight:600;color:var(--text-primary);border-bottom:1px solid var(--border);margin-bottom:8px;">
+            <i class="fas fa-folder"></i> ${escapeHtml(rootLabel)}
+        </div>`;
+        if (!data.dirs.length && !data.files.length && !currentPath) {
+            html += `<div class="empty-state">素材文件夹为空</div>`;
+        } else {
+            for (let dir of data.dirs) {
+                html += `
+                    <div class="tree-node-item" data-folder-path="${dir.path}">
+                        <span class="toggle-icon" data-type="resource" data-path="${dir.path}" data-expanded="false"><i class="fas fa-chevron-right"></i></span>
+                        <span class="node-name" data-type="resource" data-path="${dir.path}"><i class="fas fa-folder"></i> ${escapeHtml(dir.name)}</span>
+                    </div>
+                    <div class="tree-node-children" data-type="resource" data-path="${dir.path}" style="display:none;"></div>
+                `;
+            }
+            if (data.files.length) {
+                html += `<ul class="file-list">`;
+                for (let file of data.files) {
+                    html += `<li class="file-item">
+                        <i class="fas fa-file"></i> <span>${escapeHtml(file.name)}</span>
+                        <span class="file-size">${(file.size/1024).toFixed(1)} KB</span>
+                    </li>`;
+                }
+                html += `</ul>`;
+            }
+        }
+        html += `</div>`;
+        container.innerHTML = html;
+
+        document.querySelectorAll(`.toggle-icon[data-type="resource"]`).forEach(icon => {
+            icon.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const path = icon.getAttribute('data-path');
+                const isExpanded = icon.getAttribute('data-expanded') === 'true';
+                const childrenDiv = document.querySelector(`.tree-node-children[data-type="resource"][data-path="${path}"]`);
+                if (!isExpanded) {
+                    icon.innerHTML = '<i class="fas fa-chevron-down"></i>';
+                    icon.setAttribute('data-expanded', 'true');
+                    childrenDiv.style.display = 'block';
+                    if (childrenDiv.innerHTML === '') {
+                        childrenDiv.innerHTML = '加载中...';
+                        const resp = await fetch(`/api/resource_list_dir?path=${encodeURIComponent(path)}`);
+                        const subData = await resp.json();
+                        if (subData.error) childrenDiv.innerHTML = `<div class="empty-state">${escapeHtml(subData.error)}</div>`;
+                        else renderResourceNode(subData, path, childrenDiv);
+                    }
+                } else {
+                    icon.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                    icon.setAttribute('data-expanded', 'false');
+                    childrenDiv.style.display = 'none';
+                }
+            });
+        });
+        document.querySelectorAll(`.node-name[data-type="resource"]`).forEach(name => {
+            name.addEventListener('click', (e) => {
+                const path = name.getAttribute('data-path');
+                const toggleIcon = document.querySelector(`.toggle-icon[data-type="resource"][data-path="${path}"]`);
+                if (toggleIcon) toggleIcon.click();
+            });
+        });
+        document.querySelectorAll('.tree-node-item[data-folder-path]').forEach(item => {
+            item.addEventListener('dblclick', (e) => {
+                const folderPath = item.getAttribute('data-folder-path');
+                const toggleIcon = document.querySelector(`.toggle-icon[data-type="resource"][data-path="${folderPath}"]`);
+                if (toggleIcon) toggleIcon.click();
+            });
+        });
+    }
+    // 素材根目录新建/上传
+    document.getElementById('new-folder-resource-root').addEventListener('click', async () => {
+        const name = prompt('新建文件夹名称:');
+        if (!name) return;
+        const resp = await fetch('/api/mkdir', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'resource', path: '', name }) });
+        const data = await resp.json();
+        if (data.success) { alert('创建成功'); loadResourceTree(); }
+        else alert('创建失败: ' + data.error);
+    });
+    document.getElementById('upload-resource-root').addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.onchange = () => {
+            const file = input.files[0];
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024 * 1024) {
+                showToast('文件过大，上传限制为 2GB');
+                return;
+            }
+            const isLarge = file.size > 16 * 1024 * 1024;
+            const formData = new FormData();
+            formData.append('type', 'resource');
+            formData.append('path', '');
+            formData.append('file', file);
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/upload');
+
+            if (isLarge) {
+                const overlay = document.getElementById('progress-overlay');
+                const fill = document.getElementById('progress-bar-fill');
+                const pct = document.getElementById('progress-percent');
+                const spd = document.getElementById('progress-speed');
+                const fn = document.getElementById('progress-filename');
+                fn.textContent = file.name;
+                overlay.classList.add('show');
+                let startTime = Date.now();
+                let lastLoaded = 0;
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        fill.style.width = percent + '%';
+                        pct.textContent = percent + '%';
+                        const elapsed = (Date.now() - startTime) / 1000;
+                        if (elapsed > 0.5) {
+                            const speed = (e.loaded - lastLoaded) / (elapsed > 0 ? elapsed : 0.1);
+                            spd.textContent = formatSpeed(speed);
+                            startTime = Date.now();
+                            lastLoaded = e.loaded;
+                        }
+                    }
+                });
+                xhr.addEventListener('loadend', () => {
+                    overlay.classList.remove('show');
+                });
+            }
+
+            xhr.addEventListener('load', () => {
+                if (xhr.status === 200) {
+                    showToast('上传成功');
+                    loadResourceTree();
+                } else {
+                    showToast('上传失败: ' + xhr.responseText);
+                }
+            });
+            xhr.addEventListener('error', () => {
+                showToast('上传失败: 网络错误');
+                if (isLarge) document.getElementById('progress-overlay').classList.remove('show');
+            });
+            xhr.send(formData);
+        };
+        input.click();
+    });
+
+    function formatSpeed(bytesPerSec) {
+        if (bytesPerSec < 1024) return Math.round(bytesPerSec) + ' B/s';
+        if (bytesPerSec < 1048576) return (bytesPerSec / 1024).toFixed(1) + ' KB/s';
+        return (bytesPerSec / 1048576).toFixed(1) + ' MB/s';
+    }
+
+    // ==================== 回收站 ====================
+    async function loadRecycle() {
+        const container = document.getElementById('recycle-list');
+        const resp = await fetch('/api/recycle_list');
+        const items = await resp.json();
+        if (!items.length) {
+            container.innerHTML = '<div class="empty-state">回收站为空</div>';
+            return;
+        }
+        let html = '';
+        for (let item of items) {
+            const date = new Date(item.deleted_at * 1000).toLocaleString();
+            html += `
+                <div class="recycle-item">
+                    <div>
+                        <strong>${escapeHtml(item.original_path)}</strong><br>
+                        <small>类型: ${item.item_type === 'dir' ? '文件夹' : '文件'} | 删除时间: ${date}</small>
+                        ${item.size ? `<small> | 大小: ${(item.size/1024).toFixed(1)} KB</small>` : ''}
+                    </div>
+                    <div>
+                        <button class="btn" onclick="restoreItem('${item.recycle_name}')"><i class="fas fa-trash-restore"></i> 恢复</button>
+                        <button class="btn btn-danger" onclick="permanentDelete('${item.recycle_name}')"><i class="fas fa-trash-alt"></i> 彻底删除</button>
+                    </div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    }
+    window.restoreItem = async (recycleName) => {
+        if (!confirm('恢复后原位置不能有同名文件/文件夹')) return;
+        const resp = await fetch('/api/restore', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ recycle_name: recycleName }) });
+        const data = await resp.json();
+        if (data.success) { alert('恢复成功'); loadRecycle(); loadWorkTree(); loadResourceTree(); }
+        else alert('恢复失败: ' + data.error);
+    };
+    window.permanentDelete = async (recycleName) => {
+        if (!confirm('彻底删除后无法恢复，确定吗？')) return;
+        const resp = await fetch('/api/permanent_delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ recycle_name: recycleName }) });
+        const data = await resp.json();
+        if (data.success) { alert('已彻底删除'); loadRecycle(); }
+        else alert('删除失败: ' + data.error);
+    };
+
+    // ==================== 用户管理 ====================
+    let currentEditUserId = null;
+    async function loadUsers() {
+        const container = document.getElementById('users-list');
+        const resp = await fetch('/api/admin/users');
+        const users = await resp.json();
+        if (!users.length) { container.innerHTML = '<div class="empty-state">暂无用户</div>'; return; }
+        let html = '<table class="users-table"><thead><tr><th></th><th>用户</th><th>操作</th></tr></thead><tbody>';
+        for (let u of users) {
+            const initial = (u.real_name || u.nickname || '?')[0].toUpperCase();
+            const avatarHtml = u.avatar_url
+                ? `<img src="${u.avatar_url}" class="user-avatar-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                   <div class="user-avatar" style="display:none;">${initial}</div>`
+                : `<div class="user-avatar">${initial}</div>`;
+            html += `<tr>
+                        <td class="user-avatar-cell">${avatarHtml}</td>
+                        <td>
+                            <div class="user-info">
+                                <span class="user-name">${escapeHtml(u.real_name)}</span>
+                                <span class="user-nick">${escapeHtml(u.nickname) || '—'}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="user-actions">
+                                <button class="btn btn-sm edit-user-btn" data-id="${u.id}" data-realname="${escapeHtml(u.real_name)}" data-nickname="${escapeHtml(u.nickname)}"><i class="fas fa-edit"></i> 编辑</button>
+                                <button class="btn btn-sm btn-danger delete-user-btn" data-id="${u.id}" data-realname="${escapeHtml(u.real_name)}"><i class="fas fa-trash-alt"></i> 删除</button>
+                                <button class="dev-toggle ${u.is_developer ? 'on' : 'off'}" data-id="${u.id}" data-dev="${u.is_developer}">
+                                    <i class="fas fa-code"></i> ${u.is_developer ? '开发者' : '开发者'}
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
+        }
+        html += '</tbody></table>';
+        container.innerHTML = html;
+        document.querySelectorAll('.dev-toggle').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const userId = btn.getAttribute('data-id');
+                const current = btn.getAttribute('data-dev') === 'true';
+                const newDev = !current;
+                const resp = await fetch(`/api/admin/users/${userId}/developer`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_developer: newDev })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    btn.setAttribute('data-dev', String(newDev));
+                    btn.className = 'dev-toggle ' + (newDev ? 'on' : 'off');
+                    btn.innerHTML = '<i class="fas fa-code"></i> 开发者';
+                }
+            });
+        });
+        document.querySelectorAll('.edit-user-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentEditUserId = btn.getAttribute('data-id');
+                document.getElementById('edit-realname').value = btn.getAttribute('data-realname');
+                document.getElementById('edit-nickname').value = btn.getAttribute('data-nickname');
+                document.getElementById('edit-password').value = '';
+                document.getElementById('edit-confirm-password').value = '';
+                document.getElementById('edit-user-modal').style.display = 'flex';
+            });
+        });
+        document.querySelectorAll('.delete-user-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const userId = btn.getAttribute('data-id');
+                const userName = btn.getAttribute('data-realname');
+                if (!confirm(`确定删除用户 "${userName}" 吗？此操作不可恢复。`)) return;
+                const resp = await fetch('/api/admin/delete_user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: userId }) });
+                const data = await resp.json();
+                if (data.success) { alert('删除成功'); loadUsers(); }
+                else alert('删除失败: ' + data.error);
+            });
+        });
+    }
+    document.getElementById('edit-user-submit').addEventListener('click', async () => {
+        const realname = document.getElementById('edit-realname').value.trim();
+        const nickname = document.getElementById('edit-nickname').value.trim();
+        const password = document.getElementById('edit-password').value;
+        const confirm = document.getElementById('edit-confirm-password').value;
+        if (password && password !== confirm) { alert('两次输入的密码不一致'); return; }
+        const body = { user_id: currentEditUserId };
+        if (realname) body.real_name = realname;
+        if (nickname) body.nickname = nickname;
+        if (password) body.password = password;
+        const resp = await fetch('/api/admin/update_user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const data = await resp.json();
+        if (data.success) { alert('修改成功'); document.getElementById('edit-user-modal').style.display = 'none'; loadUsers(); }
+        else alert('修改失败: ' + data.error);
+    });
+    document.getElementById('close-edit-modal').addEventListener('click', () => {
+        document.getElementById('edit-user-modal').style.display = 'none';
+    });
+    window.onclick = (e) => {
+        const modal = document.getElementById('edit-user-modal');
+        if (e.target === modal) modal.style.display = 'none';
+    };
+
+    // ==================== 移动文件逻辑 ====================
+    let currentMoveFile = { relPath: '', filename: '' };
+    async function renderFolderTree(container, currentPath) {
+        const url = `/api/list_dir?path=${encodeURIComponent(currentPath)}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        if (data.error) { container.innerHTML = '<div class="empty-state">无法加载文件夹</div>'; return; }
+        let html = `<ul style="list-style: none; padding-left: 0;">`;
+        for (let dir of data.dirs) {
+            const fullPath = dir.path;
+            html += `
+                <li>
+                    <div class="folder-item" data-path="${fullPath}">
+                        <i class="fas fa-folder"></i> <span>${escapeHtml(dir.name)}</span>
+                    </div>
+                    <div class="folder-children" data-path="${fullPath}" style="display: none;"></div>
+                </li>
+            `;
+        }
+        if (data.dirs.length === 0) html += '<li class="empty-state">暂无子文件夹</li>';
+        html += `</ul>`;
+        container.innerHTML = html;
+
+        // 绑定点击事件：展开/收起子文件夹，同时选中当前文件夹
+        container.querySelectorAll('.folder-item').forEach(item => {
+            item.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const path = item.getAttribute('data-path');
+                const childrenDiv = item.parentElement.querySelector('.folder-children');
+                if (childrenDiv) {
+                    if (childrenDiv.style.display === 'none') {
+                        // 加载子文件夹内容
+                        childrenDiv.style.display = 'block';
+                        if (childrenDiv.innerHTML === '') {
+                            childrenDiv.innerHTML = '<div class="loading">加载中...</div>';
+                            const childContainer = childrenDiv;
+                            const childHtml = await buildFolderTreeHtml(path);
+                            childContainer.innerHTML = childHtml;
+                            // 递归绑定新加载的文件夹项
+                            childContainer.querySelectorAll('.folder-item').forEach(subItem => {
+                                subItem.addEventListener('click', async (e2) => {
+                                    e2.stopPropagation();
+                                    const subPath = subItem.getAttribute('data-path');
+                                    // 高亮选中的文件夹
+                                    document.querySelectorAll('.folder-item').forEach(f => f.classList.remove('selected'));
+                                    subItem.classList.add('selected');
+                                    currentMoveFile.targetPath = subPath;
+                                });
+                            });
+                        }
+                    } else {
+                        childrenDiv.style.display = 'none';
+                    }
+                }
+                // 选中当前文件夹
+                document.querySelectorAll('.folder-item').forEach(f => f.classList.remove('selected'));
+                item.classList.add('selected');
+                currentMoveFile.targetPath = path;
+            });
+        });
+    }
+
+    async function buildFolderTreeHtml(relPath) {
+        const url = `/api/list_dir?path=${encodeURIComponent(relPath)}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        if (data.error) return '<div class="empty-state">加载失败</div>';
+        let html = `<ul style="list-style: none; padding-left: 20px;">`;
+        for (let dir of data.dirs) {
+            const fullPath = dir.path;
+            html += `
+                <li>
+                    <div class="folder-item" data-path="${fullPath}">
+                        <i class="fas fa-folder"></i> <span>${escapeHtml(dir.name)}</span>
+                    </div>
+                    <div class="folder-children" data-path="${fullPath}" style="display: none;"></div>
+                </li>
+            `;
+        }
+        if (data.dirs.length === 0) html += '<li class="empty-state">暂无子文件夹</li>';
+        html += `</ul>`;
+        return html;
+    }
+
+    // 确认移动
+    document.getElementById('move-confirm').addEventListener('click', async () => {
+        const targetPath = currentMoveFile.targetPath;
+        if (!targetPath) {
+            alert('请选择目标文件夹');
+            return;
+        }
+        const srcFullPath = currentMoveFile.relPath + '/' + currentMoveFile.filename;
+        const resp = await fetch('/api/move_work_file', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                src_rel_path: srcFullPath,
+                dest_dir_rel_path: targetPath,
+                filename: currentMoveFile.filename
+            })
+        });
+        const data = await resp.json();
+        if (data.success) {
+            alert('移动成功');
+            document.getElementById('move-file-modal').style.display = 'none';
+            loadWorkTree();
+        } else {
+            alert('移动失败: ' + data.error);
+        }
+    });
+    document.getElementById('move-cancel').addEventListener('click', () => {
+        document.getElementById('move-file-modal').style.display = 'none';
+    });
+
+    // ==================== 标签页切换 ====================
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const tabId = btn.getAttribute('data-tab');
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+            if (tabId === 'work') loadWorkTree();
+            else if (tabId === 'resource') loadResourceTree();
+            else if (tabId === 'recycle') loadRecycle();
+            else if (tabId === 'users') loadUsers();
+        });
+    });
+
+    // 初始加载
+    loadWorkTree();
+    loadResourceTree();
+    loadRecycle();
+    loadUsers();
+    startDevicesRefresh();
+</script>
+</body>
+</html>
