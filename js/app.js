@@ -7634,7 +7634,11 @@
           wv.stop();
         }
         wv._loading = true;
-        wv.loadURL(fullUrl);
+        if (!wv.src || wv.src === 'about:blank') {
+          wv.setAttribute('src', fullUrl);
+        } else {
+          wv.loadURL(fullUrl);
+        }
       }
     }
   }
