@@ -14,7 +14,7 @@
     "electron-builder": "24.6.4"
   },
   "build": {
-    "appId": "com.yourcompany.uploadsystem",
+    "appId": "com.anghaoyu16.uploadsystem",
     "productName": "作业上传系统",
     "directories": {
       "output": "dist"
