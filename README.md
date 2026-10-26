@@ -141,8 +141,6 @@ npm start                          # 启动 Electron 窗口
 - 稳定版：`{服务器}/file/app/version.json`
 - 测试版：`{服务器}/file/app_beta/version.json`
 
-> `config.json` **已被 .gitignore 忽略**，不会提交到仓库。不用担心泄露自己的 IP 和密码。
-
 ---
 
 ## 目录说明
