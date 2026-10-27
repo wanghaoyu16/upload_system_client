@@ -319,7 +319,10 @@ async function executeTool(name, args) {
             var kwLower = kw ? kw.toLowerCase() : '';
             document.querySelectorAll('button, a, input, textarea, select, [role="button"], [onclick], [class*="btn"], h1, h2, h3, h4, h5, h6, [class*="title"], label, div, span, li, dt, dd, td, th, p, [class*="option"], [class*="item"], [class*="choice"], [class*="answer"]').forEach(function(el) {
               var rect = el.getBoundingClientRect();
-              if (rect.width <= 0 || rect.height <= 0 || rect.width > 800 || rect.height > 200) return;
+            if (rect.width <= 0 || rect.height <= 0) return;
+            var elTagCheck = el.tagName.toLowerCase();
+            if ((elTagCheck === 'button' || elTagCheck === 'input' || elTagCheck === 'a' || elTagCheck === 'select' || elTagCheck === 'textarea') && rect.width > 800) return;
+            if (rect.height > 200) return;
               var id = el.id || '';
               var cls = (typeof el.className === 'string' ? el.className : '').toLowerCase();
               if (id.indexOf('edui') === 0 || id.indexOf('mask') === 0) return;
