@@ -22,7 +22,9 @@
     "files": [
       "**/*",
       "!node_modules/.cache",
-      "!dist"
+      "!dist",
+      "!server_python",
+      "!config.example.json"
     ],
     "win": {
       "target": "nsis",

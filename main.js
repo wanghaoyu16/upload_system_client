@@ -1181,10 +1181,18 @@ ipcMain.handle('set-ignore-mouse-events', (event, ignore) => {
 if (process.argv.includes('--hidden')) {
     shouldShowWindow = false;
 }
+    function getUpdateHost() {
+        if (process.env.UPDATE_HOST) return process.env.UPDATE_HOST;
+        try {
+            const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf-8'));
+            if (cfg.updateHost) return cfg.updateHost;
+        } catch(e) {}
+        return '请在此处输入更新服务器IP';
+    }
     function checkForLocalUpdate() {
         return new Promise((resolve) => {
             const currentVer = app.getVersion();
-            const updateHost = process.env.UPDATE_HOST || '请在此处输入更新服务器IP';
+            const updateHost = getUpdateHost();
             const req = http.get(`http://${updateHost}:80/version.json`, (res) => {
                 let body = '';
                 res.on('data', chunk => body += chunk);

@@ -30,6 +30,7 @@ __pycache__/
 .venv/
 
 # 敏感配置文件
+/config.json
 server_python/config.json
 server_python/data/
 server_python/file/

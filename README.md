@@ -78,6 +78,34 @@ copy config.example.json config.json   # Windows
 
 > 字段含义见下方 [配置说明](#配置说明)。
 
+同时配置客户端探测地址：
+
+```bash
+# 回到项目根目录
+cd ..
+copy config.example.json config.json   # Windows
+# cp config.example.json config.json   # macOS / Linux
+```
+
+打开根目录的 `config.json`，填入你的后端地址：
+
+```json
+{
+  "backends": [
+    "http://192.168.1.100",
+    "http://10.0.0.50",
+    "http://你的公网IP:80",
+    "http://127.0.0.1"
+  ],
+  "updateHost": "192.168.1.100"
+}
+```
+
+| 字段 | 说明 |
+|------|------|
+| `backends` | 客户端探测地址列表，按顺序尝试连接 |
+| `updateHost` | 版本更新服务器 IP（不带协议和路径） |
+
 ### 第三步：放入学习通数据（可选）
 
 如果你的场景不需要学习通，跳过此步。
@@ -147,6 +175,8 @@ npm start                          # 启动 Electron 窗口
 
 ```
 项目根目录/
+├── config.example.json      # 客户端配置模板（可提交）
+├── config.json              # 客户端配置（不提交）
 ├── main.js                  # Electron 主进程（窗口、托盘、更新、学习通 SSO、通话窗口等）
 ├── preload.js               # 预加载脚本（安全桥接，含 MMD 模型/图片本地存储）
 ├── call-preload.js          # 来电窗口预加载（Agora RTC）
@@ -182,29 +212,14 @@ npm start                          # 启动 Electron 窗口
 
 ## 需要手动修改的位置
 
-除 `config.json` 外，以下文件中也有占位符需要替换成你自己的地址：
+所有敏感配置已从代码中移除，改为从配置文件读取：
 
-### js/app.js（DEFAULT_PROBE_URLS，第 6–14 行）
+| 配置文件 | 位置 | 用途 |
+|----------|------|------|
+| `config.json`（根目录） | 项目根目录 | 客户端后端探测列表、更新服务器 IP |
+| `server_python/config.json` | server_python/ | 后端服务配置、学习通数据、存储路径 |
 
-| 行号 | 内容 | 说明 |
-|------|------|------|
-| 6 | `'http://<请在此处输入内网IP地址1>'` | 内网后端地址 1 |
-| 7 | `'http://<请在此处输入IP地址2>'` | 后端地址 2 |
-| 8 | `'http://<请在此处输入IP地址3>'` | 后端地址 3 |
-| 9 | `'http://<请在此处输入IP地址4>'` | 后端地址 4 |
-| 10 | `'http://<请在此处输入IP地址5>'` | 后端地址 5 |
-| 11 | `'http://<请在此处输入IP地址1>'` | 公网后端地址 1 |
-| 12 | `'http://<请在此处输入IP地址2>'` | 公网后端地址 2 |
-| 13 | `'http://<请在此处输入IP地址3>'` | 公网后端地址 3 |
-| 14 | `'http://127.0.0.1'` | 本机（默认 80 端口） |
-
-### main.js（`checkForLocalUpdate` 中的更新服务器）
-
-| 行号 | 内容 | 说明 |
-|------|------|------|
-| 1187 | `process.env.UPDATE_HOST \|\| '请在此处输入更新服务器IP'` | 版本更新服务器 IP |
-
-> 也可通过环境变量 `UPDATE_HOST` 设置 `main.js` 中的地址，无需改代码。
+两个配置文件均需从 `config.example.json` 复制后填写。详细说明见上方 [配置服务器](#第二步配置服务器) 步骤。
 
 ---
 
@@ -220,14 +235,13 @@ pip install flask openpyxl werkzeug
 
 - Windows 下 80 端口常被 IIS、其他 Web 服务占用，可用 `netstat -ano | findstr :80` 查看占用进程
 - 以管理员身份运行命令行
-- 如实在无法释放，可修改 `app.py` 末尾 `port=80` 为其他端口，并同步修改 `config.json` 与 `js/app.js` 中的地址
+- 如实在无法释放，可修改 `app.py` 末尾 `port=80` 为其他端口，并同步修改两个 `config.json` 中的地址
 
 **Q：客户端连不上服务器？**
 
-- 检查 `config.json` 中 `backends` 地址是否正确
+- 检查根目录 `config.json` 中 `backends` 地址是否正确
 - 确认 Python 服务已启动（80 端口主服务、50 端口管理后台）
 - 防火墙是否放行了对应端口
-- 确认 `js/app.js` 中的 `DEFAULT_PROBE_URLS` 也已改成实际地址
 
 **Q：学习通显示"未找到您的学习通数据"？**
 
@@ -270,8 +284,9 @@ pip install flask openpyxl werkzeug
 
 注意：
 - **不要**在 PR 中包含 `config.json` 或任何含真实 IP / 密码的文件
-- 新增配置项请同步更新 `config.example.json`
-- Python 代码用 `app.py` 中的 `_server_cfg.get('key', default)` 读取配置
+- 新增配置项请同步更新两个 `config.example.json`（根目录和 server_python/）
+- Python 服务端用 `app.py` 中的 `_server_cfg.get('key', default)` 读取配置
+- Electron 客户端通过 `preload.js` 的 `getClientConfig()` 读取根目录 `config.json`
 
 ---
 

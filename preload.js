@@ -2,6 +2,16 @@ const { contextBridge, ipcRenderer, webUtils } = require('electron');
 const fs = require('fs');
 const path = require('path');
 
+let clientConfig = {};
+try {
+    const configPath = path.join(__dirname, 'config.json');
+    if (fs.existsSync(configPath)) {
+        clientConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    }
+} catch (e) {
+    console.error('[Preload] 读取客户端配置文件失败:', e.message);
+}
+
 let mmdDir, mmdBlobsDir, mmdModelsPath, mmdAiDir, mmdAiProjectsPath;
 try {
     const userDataPath = ipcRenderer.sendSync('get-user-data-path');
@@ -41,6 +51,7 @@ function saveAiProjectsJson(projects) {
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
+    getClientConfig: () => clientConfig,
     getFilePath: (file) => {
         try { return webUtils.getPathForFile(file) || file.path || null; } catch (e) { return file.path || null; }
     },

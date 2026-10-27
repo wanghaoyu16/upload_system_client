@@ -2,17 +2,10 @@
   'use strict';
 
   const API = window.electronAPI;
-  const DEFAULT_PROBE_URLS = [
-    'http://<请在此处输入内网IP地址1>',
-    'http://<请在此处输入IP地址2>',
-    'http://<请在此处输入IP地址3>',
-    'http://<请在此处输入IP地址4>',
-    'http://<请在此处输入IP地址5>',
-    'http://<请在此处输入IP地址1>',
-    'http://<请在此处输入IP地址2>',
-    'http://<请在此处输入IP地址3>',
-    'http://127.0.0.1'
-  ];
+  const cfg = (API && API.getClientConfig) ? API.getClientConfig() : {};
+  const DEFAULT_PROBE_URLS = (cfg.backends && cfg.backends.length > 0)
+    ? cfg.backends
+    : [];
   let BACKENDS = [...DEFAULT_PROBE_URLS];
   let activeBackend = localStorage.getItem('activeBackend') || '';
   let token = localStorage.getItem('token') || '';
