@@ -8577,8 +8577,8 @@
     if (old) old.remove();
     const menu = document.createElement('div');
     menu.id = 'tab-context-menu';
-    menu.className = 'context-menu';
-    menu.style.cssText = `left:${x}px;top:${y}px;`;
+    menu.className = 'context-menu ctx-appear';
+    menu.style.cssText = 'left:' + x + 'px;top:' + y + 'px;';
     menu.innerHTML = `
       <div class="context-item" data-action="refresh"><i class="fa-solid fa-rotate"></i> 刷新</div>
       <div class="context-item" data-action="back"><i class="fa-solid fa-arrow-left"></i> 后退</div>
@@ -8597,6 +8597,13 @@
       });
     });
     document.body.appendChild(menu);
+    var rect = menu.getBoundingClientRect();
+    var mw = rect.width, mh = rect.height;
+    if (x + mw > window.innerWidth - 4) menu.style.left = Math.max(4, x - mw) + 'px';
+    if (y + mh > window.innerHeight - 4) menu.style.top = Math.max(4, y - mh) + 'px';
+    var fl = parseInt(menu.style.left) || x;
+    var ft = parseInt(menu.style.top) || y;
+    menu.style.transformOrigin = (x - fl) + 'px ' + (y - ft) + 'px';
     const closeMenu = (e) => { if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', closeMenu); } };
     setTimeout(() => document.addEventListener('click', closeMenu), 0);
   }
