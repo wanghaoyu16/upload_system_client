@@ -5869,7 +5869,7 @@
   let xxtTabs = [];
   let xxtActiveTabId = null;
 
-  const XxtUA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) cxstudy/1.4.2 Chrome/126.0.6478.234 Electron/31.6.0 Safari/537.36 osVersion_10.0.26200 osArch_0 (schild:87d6ef89e0106fcbbceb33718d1eb91c) (device:x64) Language/zh_CN com.chaoxing.cxstudy/ChaoXingStudy_1000371_1.4.2_windows_pc';
+  const XxtUA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) cxstudy/1.4.5 Chrome/150.0.7871.224 Electron/43.4.0 Safari/537.36 osVersion_10.0.26300 osArch_0 (schild:7204d6e5f16219ffd702bf20b1ac393a) (device:x64) Language/zh_CN com.chaoxing.cxstudy/ChaoXingStudy_1000371_1.4.5_windows_pc_202611041930_258 (@Kalimdor)_441cf2e6072446a690668944fdd0a90e668c6c307f2c0605af5278a91e35b771';
   let xxtPreloadPath = '';
   API.getXxtPreloadPath().then(function(p) { xxtPreloadPath = p; console.log('[XXT] preload path:', p); });
 
