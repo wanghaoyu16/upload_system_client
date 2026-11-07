@@ -5679,10 +5679,12 @@
       menuEl.style.top = y + 'px';
       document.body.appendChild(menuEl);
       var rect = menuEl.getBoundingClientRect();
-      if (rect.right > window.innerWidth - 4) menuEl.style.left = Math.max(4, window.innerWidth - rect.width - 4) + 'px';
-      if (rect.bottom > window.innerHeight - 4) menuEl.style.top = Math.max(4, window.innerHeight - rect.height - 4) + 'px';
-      if (rect.left < 4) menuEl.style.left = '4px';
-      if (rect.top < 4) menuEl.style.top = '4px';
+      var mw = rect.width, mh = rect.height;
+      if (x + mw > window.innerWidth - 4) menuEl.style.left = Math.max(4, x - mw) + 'px';
+      if (y + mh > window.innerHeight - 4) menuEl.style.top = Math.max(4, y - mh) + 'px';
+      var finalLeft = parseInt(menuEl.style.left) || x;
+      var finalTop = parseInt(menuEl.style.top) || y;
+      menuEl.style.transformOrigin = (x - finalLeft) + 'px ' + (y - finalTop) + 'px';
       var closeMenu = function(ev) { if (!menuEl.contains(ev.target)) { menuEl.remove(); document.removeEventListener('click', closeMenu); } };
       setTimeout(function() { document.addEventListener('click', closeMenu); }, 0);
     }
