@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Tray, Menu, nativeImage, session, protocol, safeStorage, shell, screen } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Tray, Menu, nativeImage, session, protocol, safeStorage, shell, screen, clipboard, webContents } = require('electron');
 const _origShellOpenExternal = shell.openExternal;
 shell.openExternal = function(url, options) {
     console.log('[Main] shell.openExternal CALL:', url, '| blocked:', !!isBlockedProtocol(url));
@@ -903,8 +903,16 @@ if (!gotTheLock) {
             mainWindow.webContents.send('window-state-changed', false);
         });
         mainWindow.webContents.on('before-input-event', (e, input) => {
+            if (input.type !== 'keyDown') return;
             if (input.key === 'Escape' && !input.control && !input.alt && !input.meta && escHideEnabled) {
                 mainWindow.hide();
+            }
+            if (input.key === 'F10' && !input.control && !input.alt && !input.meta && !input.shift) {
+                mainWindow.webContents.send('browser-hide-shortcut-triggered');
+            }
+            if (input.key === 'F11' && !input.control && !input.alt && !input.meta && !input.shift) {
+                mainWindow.setFullScreen(!mainWindow.isFullScreen());
+                mainWindow.webContents.send('fullscreen-changed', mainWindow.isFullScreen());
             }
             if (input.control && input.shift && input.key === 'I') {
                 if (!isDeveloper) {
@@ -949,24 +957,7 @@ if (!gotTheLock) {
             mainWindow = null;
         });
         mainWindow.webContents.on('context-menu', (e, props) => {
-            const menuTemplate = [];
-            if (props.canGoBack) {
-                menuTemplate.push({ label: '后退', click: () => { mainWindow.webContents.goBack(); } });
-            }
-            if (props.canGoForward) {
-                menuTemplate.push({ label: '前进', click: () => { mainWindow.webContents.goForward(); } });
-            }
-            menuTemplate.push({ label: '重新加载', click: () => { mainWindow.webContents.reload(); } });
-            menuTemplate.push({
-                label: mainWindow.isFullScreen() ? '退出全屏' : '全屏',
-                click: () => {
-                    mainWindow.setFullScreen(!mainWindow.isFullScreen());
-                }
-            });
-            if (menuTemplate.length) {
-                const menu = Menu.buildFromTemplate(menuTemplate);
-                menu.popup({ window: mainWindow });
-            }
+            e.preventDefault();
         });
         mainWindow.webContents.on('did-finish-load', () => {
             const bgInfo = loadBackgroundMetadata();
@@ -1232,6 +1223,12 @@ if (process.argv.includes('--hidden')) {
                     }
                 }
             });
+            contents.on('context-menu', (e, params) => {
+                e.preventDefault();
+                if (mainWindow && !mainWindow.isDestroyed()) {
+                    mainWindow.webContents.send('webview-ctxmenu', { x: params.x, y: params.y, wcId: contents.id, selectionText: params.selectionText || '', editFlags: params.editFlags || {}, isEditable: !!params.isEditable, inputFieldType: params.inputFieldType || '' });
+                }
+            });
             contents.on('destroyed', () => { xxtWebContentsIds.delete(contents.id); });
             contents.setWindowOpenHandler(({ url }) => {
                 console.log('[Main] webview windowOpenHandler:', url, 'wcId:', contents.id, 'isXxt:', xxtWebContentsIds.has(contents.id));
@@ -1271,7 +1268,7 @@ if (process.argv.includes('--hidden')) {
                     } else {
                         e.preventDefault();
                     }
-                    const win = BrowserWindow.fromWebContents(e.sender) || BrowserWindow.fromWebContents(contents);
+                    const win = (e.sender ? BrowserWindow.fromWebContents(e.sender) : null) || BrowserWindow.fromWebContents(contents);
                     if (win && !win.isDestroyed()) win.close();
                 });
                 contents.setWindowOpenHandler(({ url }) => {
@@ -1424,20 +1421,6 @@ if (process.argv.includes('--hidden')) {
                     }
                 });
             }
-            if (browserHideShortcutEnabled) {
-                globalShortcut.register(browserHideShortcutKey, () => {
-                    if (mainWindow && !mainWindow.isDestroyed()) {
-                        mainWindow.webContents.send('browser-hide-shortcut-triggered');
-                    }
-                });
-            }
-            if (fullscreenShortcutEnabled) {
-                globalShortcut.register('F11', () => {
-                    if (mainWindow && !mainWindow.isDestroyed()) {
-                        mainWindow.setFullScreen(!mainWindow.isFullScreen());
-                    }
-                });
-            }
         }
         function unregisterAllShortcuts() {
             globalShortcut.unregisterAll();
@@ -1557,6 +1540,15 @@ if (process.argv.includes('--hidden')) {
                     mainWindow.show();
                 }
             }
+        });
+        ipcMain.on('toggle-fullscreen', () => {
+            if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.setFullScreen(!mainWindow.isFullScreen());
+                mainWindow.webContents.send('fullscreen-changed', mainWindow.isFullScreen());
+            }
+        });
+        ipcMain.on('get-fullscreen-state', (e) => {
+            e.returnValue = mainWindow ? mainWindow.isFullScreen() : false;
         });
         ipcMain.on('refocus-main-window', () => {
             if (mainWindow && !mainWindow.isDestroyed()) {
@@ -1680,6 +1672,28 @@ if (process.argv.includes('--hidden')) {
         ipcMain.on('relaunch-app', () => {
             app.relaunch();
             app.exit();
+        });
+
+        ipcMain.on('copy-to-clipboard', (event, text) => {
+            if (text) clipboard.writeText(text);
+        });
+
+        ipcMain.on('webview-command', (event, wcId, cmd) => {
+            try {
+                const wc = webContents.fromId(wcId);
+                if (!wc || wc.isDestroyed()) return;
+                wc.focus();
+                setTimeout(() => {
+                    try {
+                        if (cmd === 'paste') {
+                            var text = clipboard.readText();
+                            if (text) wc.insertText(text);
+                        } else if (cmd === 'selectAll') {
+                            wc.sendInputEvent({ type: 'keyDown', keyCode: 'a', modifiers: ['control'] });
+                        }
+                    } catch(e) {}
+                }, 100);
+            } catch(e) {}
         });
 
         ipcMain.on('set-auto-start', (event, enable) => {

@@ -1992,11 +1992,17 @@ body.with-bg .xxt-placeholder {
   gap: 8px;
 }
 .context-item:hover { background: var(--bg-hover, rgba(128,128,128,0.15)); }
+.context-item.disabled { color: var(--text-secondary); opacity: 0.45; cursor: default; pointer-events: none; }
 .context-sep {
   height: 1px;
   background: var(--border);
   margin: 4px 8px;
 }
+@keyframes ctxPopup {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.ctx-appear { animation: ctxPopup 0.15s ease-out; }
 
 /* 公告页面 */
 #page-announcements.active {

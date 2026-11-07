@@ -4,6 +4,9 @@
     if (window.__wvPreloaded) return;
     window.__wvPreloaded = 1;
 
+    var ipcRenderer = null;
+    try { ipcRenderer = require('electron').ipcRenderer; } catch(e) {}
+
     var BT = String.fromCharCode(96);
     function cleanUrl(u) {
         if (!u) return u;
@@ -122,6 +125,37 @@
 
             if (count >= 60) clearInterval(id);
         }, 200);
+    }
+
+    window.__lastFocusedEl = null;
+    document.addEventListener('focusin', function(e) {
+        window.__lastFocusedEl = e.target;
+    }, true);
+
+    if (ipcRenderer) {
+        ipcRenderer.on('restore-focus', function() {
+            var el = window.__lastFocusedEl;
+            if (el && typeof el.focus === 'function') {
+                el.focus();
+            }
+        });
+        ipcRenderer.on('insert-text', function(event, text) {
+            var el = window.__lastFocusedEl;
+            if (!el || !text) return;
+            if (typeof el.focus === 'function') el.focus();
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                var start = el.selectionStart;
+                var end = el.selectionEnd;
+                var val = el.value || '';
+                el.value = val.substring(0, start) + text + val.substring(end);
+                el.selectionStart = el.selectionEnd = start + text.length;
+            } else if (el.isContentEditable) {
+                document.execCommand('insertText', false, text);
+            }
+        });
+        ipcRenderer.on('select-all', function() {
+            document.execCommand('selectAll', false, null);
+        });
     }
 
     if (document.readyState === 'loading') {

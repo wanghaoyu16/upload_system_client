@@ -5622,6 +5622,106 @@
       });
     }
 
+    if (API && API.onCtxMenuAction) {
+      API.onCtxMenuAction(function(action) {});
+    }
+
+    var _appFullscreen = API && API.isFullscreen ? API.isFullscreen() : false;
+    if (API && API.onFullscreenChanged) {
+      API.onFullscreenChanged(function(state) { _appFullscreen = state; });
+    }
+
+    function showCtxMenu(x, y, optWv, ctxData) {
+      var menuEl = document.getElementById('app-context-menu');
+      if (menuEl) menuEl.remove();
+      var wv = optWv || (typeof getActiveWebview === 'function' ? getActiveWebview() : null);
+      var canBack = $('btn-back') ? !$('btn-back').disabled : false;
+      var canForward = $('btn-forward') ? !$('btn-forward').disabled : false;
+      if (wv) {
+        try { canBack = wv.canGoBack(); } catch(e) { canBack = !$('btn-back').disabled; }
+        try { canForward = wv.canGoForward(); } catch(e) { canForward = !$('btn-forward').disabled; }
+      }
+      var selText = ctxData && ctxData.selectionText ? ctxData.selectionText : '';
+      var canPaste = ctxData && ctxData.editFlags && ctxData.editFlags.canPaste;
+      var canSelectAll = ctxData && ctxData.editFlags && ctxData.editFlags.canSelectAll;
+      var isFS = _appFullscreen;
+      menuEl = document.createElement('div');
+      menuEl.id = 'app-context-menu';
+      menuEl.className = 'context-menu ctx-appear';
+      var items = [
+        { label: '后退', icon: 'fa-solid fa-arrow-left', disabled: !canBack, action: function() { var b = $('btn-back'); if (b) b.click(); } },
+        { label: '前进', icon: 'fa-solid fa-arrow-right', disabled: !canForward, action: function() { var b = $('btn-forward'); if (b) b.click(); } },
+        { label: '刷新', icon: 'fa-solid fa-rotate', disabled: false, action: function() { var b = $('refresh-btn'); if (b) b.click(); } },
+        null
+      ];
+      var hasEditOps = selText || canPaste || canSelectAll;
+      if (hasEditOps) {
+        if (selText) items.push({ label: '复制', icon: 'fa-solid fa-copy', disabled: false, action: function() { if (API && API.copyToClipboard) API.copyToClipboard(selText); } });
+        if (canPaste) items.push({ label: '粘贴', icon: 'fa-solid fa-paste', disabled: false, action: function() { if (wv && API && API.webviewCommand) API.webviewCommand(wv.getWebContentsId(), 'paste'); } });
+        if (canSelectAll) items.push({ label: '全选', icon: 'fa-solid fa-check-double', disabled: false, action: function() { if (wv && API && API.webviewCommand) API.webviewCommand(wv.getWebContentsId(), 'selectAll'); } });
+        items.push(null);
+      }
+      items.push(
+        { label: '重新加载', icon: 'fa-solid fa-arrows-rotate', disabled: false, action: function() { if (API && API.relaunchApp) API.relaunchApp(); else location.reload(); } },
+        { label: (isFS ? '退出全屏' : '全屏'), icon: 'fa-solid fa-' + (isFS ? 'compress' : 'expand'), disabled: false, action: function() { if (API && API.toggleFullscreen) API.toggleFullscreen(); } }
+      );
+      items.forEach(function(item) {
+        if (!item) { var sep = document.createElement('div'); sep.className = 'context-sep'; menuEl.appendChild(sep); return; }
+        var div = document.createElement('div');
+        div.className = 'context-item' + (item.disabled ? ' disabled' : '');
+        div.innerHTML = '<i class="' + item.icon + '"></i> ' + item.label;
+        if (!item.disabled) {
+          div.addEventListener('mousedown', function(e) { e.preventDefault(); });
+          div.addEventListener('click', function() { item.action(); menuEl.remove(); });
+        }
+        menuEl.appendChild(div);
+      });
+      menuEl.style.left = x + 'px';
+      menuEl.style.top = y + 'px';
+      document.body.appendChild(menuEl);
+      var rect = menuEl.getBoundingClientRect();
+      if (rect.right > window.innerWidth - 4) menuEl.style.left = Math.max(4, window.innerWidth - rect.width - 4) + 'px';
+      if (rect.bottom > window.innerHeight - 4) menuEl.style.top = Math.max(4, window.innerHeight - rect.height - 4) + 'px';
+      if (rect.left < 4) menuEl.style.left = '4px';
+      if (rect.top < 4) menuEl.style.top = '4px';
+      var closeMenu = function(ev) { if (!menuEl.contains(ev.target)) { menuEl.remove(); document.removeEventListener('click', closeMenu); } };
+      setTimeout(function() { document.addEventListener('click', closeMenu); }, 0);
+    }
+
+    document.addEventListener('contextmenu', function(e) {
+      showCtxMenu(e.clientX, e.clientY);
+    });
+
+    function findWebviewByWcId(wcId) {
+      try {
+        if (typeof browserTabs !== 'undefined') {
+          for (var i = 0; i < browserTabs.length; i++) {
+            var t = browserTabs[i];
+            try { if (t.webview && t.webview.getWebContentsId && t.webview.getWebContentsId() == wcId) return t.webview; } catch(e) {}
+          }
+        }
+        if (typeof xxtTabs !== 'undefined') {
+          for (var j = 0; j < xxtTabs.length; j++) {
+            var xt = xxtTabs[j];
+            try { if (xt.webview && xt.webview.getWebContentsId && xt.webview.getWebContentsId() == wcId) return xt.webview; } catch(e) {}
+          }
+        }
+      } catch(e) {}
+      return null;
+    }
+
+    if (API && API.onWebviewCtxMenu) {
+      API.onWebviewCtxMenu(function(data) {
+        var wv = findWebviewByWcId(data.wcId);
+        if (!wv) { wv = typeof getActiveWebview === 'function' ? getActiveWebview() : null; }
+        if (!wv && typeof getXxtWebview === 'function') { wv = getXxtWebview(); }
+        if (!wv) return;
+        var rect = wv.getBoundingClientRect();
+        var appZoom = parseFloat(localStorage.getItem('zoomFactor') || '100') / 100;
+        showCtxMenu(rect.left + data.x * appZoom, rect.top + data.y * appZoom, wv, data);
+      });
+    }
+
     var opacityShortcutToggle = $('opacity-shortcut-toggle');
     if (opacityShortcutToggle && API && API.setOpacityShortcutEnabled) {
       opacityShortcutToggle.checked = localStorage.getItem('opacityShortcutEnabled') !== 'false';
@@ -7319,6 +7419,10 @@
         console.log('[Browser] console-message download:', url);
         handleBrowserDownload(url, fileName);
       }
+      if (e.message.startsWith('[WebViewClick]')) {
+        var ctxMenu = document.getElementById('app-context-menu');
+        if (ctxMenu) ctxMenu.remove();
+      }
     });
 
     webview.addEventListener('dom-ready', () => {
@@ -7883,6 +7987,12 @@
     webview.addEventListener('media-paused', () => {
       const tab = xxtTabs.find(t => t.id === tabId);
       if (tab) { tab.audible = false; renderXxtTabs(); }
+    });
+    webview.addEventListener('console-message', (e) => {
+      if (e.message.startsWith('[WebViewClick]')) {
+        var ctxMenu = document.getElementById('app-context-menu');
+        if (ctxMenu) ctxMenu.remove();
+      }
     });
   }
 
