@@ -1632,7 +1632,6 @@
         html += '<button class="upload-btn" data-action="delete" data-path="' + escapeHtml(node.path || node.name || '') + '" style="background:#e74c3c;"><i class="fa-solid fa-trash"></i> 删除</button>';
         html += '<button class="upload-btn" data-action="rename" data-path="' + escapeHtml(node.path || node.name || '') + '" style="background:var(--text-secondary);"><i class="fa-solid fa-pen"></i> 重命名</button>';
         html += '<button class="upload-btn" data-action="move" data-path="' + escapeHtml(node.path || node.name || '') + '" style="background:#3498db;"><i class="fa-solid fa-arrows"></i> 移动</button>';
-        html += '<button class="upload-btn" data-action="upload" data-path="' + escapeHtml(node.path || node.name || '') + '"><i class="fa-solid fa-upload"></i> 上传</button>';
       } else {
         if (node.uploader && userInfo && node.uploader === userInfo.username) {
           html += '<button class="upload-btn" data-action="delete-own" data-path="' + escapeHtml(node.path || node.name || '') + '" style="background:#e74c3c;"><i class="fa-solid fa-trash"></i> 删除</button>';
