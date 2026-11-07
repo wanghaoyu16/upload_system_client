@@ -1974,6 +1974,8 @@ body.with-bg .xxt-placeholder {
 .context-menu {
   position: fixed;
   background: var(--card-bg, var(--bg));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 4px;
