@@ -1,0 +1,465 @@
+/*** 超星学习通皮肤样式 ***/
+
+#cx-titlebar {
+  width: 100%;
+  height: 0;
+  line-height: 44px;
+  display: flex;
+  -webkit-app-region: drag;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99999;
+  background-color: rgb(49, 62, 89);
+  border: none;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.chaoxing-skin #cx-titlebar { height: 44px; }
+
+.chaoxing-skin #sidebar {
+  width: 120px;
+  height: 100%;
+  padding: 0px 10px 0px 10px;
+  background-color: rgb(49, 62, 89);
+  position: relative;
+  -webkit-app-region: drag;
+  transition: width 0.23s ease 0s;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.chaoxing-skin #sidebar::before {
+  display: none;
+}
+
+.chaoxing-skin #sidebar .cx-nav-item-setting {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  -webkit-app-region: no-drag;
+  margin-bottom: 0;
+}
+
+/* SVG 图标基础 */
+.chaoxing-skin .svg-icon {
+  vertical-align: -0.15em;
+  fill: currentcolor;
+  overflow: hidden;
+  color: var(--color);
+}
+
+html.chaoxing-skin,
+.chaoxing-skin body {
+  height: 100%;
+  background: rgb(49, 62, 89);
+}
+
+svg { display: inline-block !important; }
+
+/* ===== 布局 ===== */
+.chaoxing-skin #app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: rgb(49, 62, 89);
+}
+
+.chaoxing-skin #titlebar,
+.chaoxing-skin .corner-fill,
+.chaoxing-skin .sidebar-toggle,
+.chaoxing-skin #global-progress {
+  display: none !important;
+}
+
+/* 主内容区 — 匹配 .warpper_main */
+.chaoxing-skin #main-content {
+  width: 100%;
+  height: calc(100% - 44px);
+  margin-top: 44px;
+  display: flex;
+  flex-direction: row;
+  border-radius: 0 !important;
+  border: none !important;
+  background: rgb(49, 62, 89);
+  -webkit-app-region: drag;
+}
+
+/* 页面容器 — 匹配 .warpper_main_view */
+.chaoxing-skin #page-container {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  border-radius: 0 !important;
+  border: none !important;
+  background-color: #fff;
+  -webkit-app-region: no-drag;
+  overflow: hidden;
+}
+
+/* 主内容区卡片强制可见 */
+.chaoxing-skin #learning-info {
+  display: block !important;
+}
+
+/* ===== 标题栏 — 匹配 .window ===== */
+
+/* 搜索区 */
+.chaoxing-skin #cx-titlebar .cx-tb-search {
+  position: absolute;
+  z-index: 999999;
+  width: 430px;
+  height: 28px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: space-between;
+  -webkit-app-region: no-drag;
+}
+
+.chaoxing-skin #cx-titlebar .cx-tb-search .cx-search-input-wrap {
+  position: relative;
+  -webkit-app-region: no-drag;
+  height: 100%;
+  display: flex;
+}
+
+.chaoxing-skin #cx-titlebar .cx-tb-search input {
+  width: 380px;
+  height: 100%;
+  appearance: none;
+  outline: none;
+  padding: 4px 10px 4px 30px;
+  background-color: rgba(243, 244, 244, 0.24);
+  border-radius: 100px;
+  border: none;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17px;
+  color: #fff;
+}
+
+.chaoxing-skin #cx-titlebar .cx-tb-search input:hover,
+.chaoxing-skin #cx-titlebar .cx-tb-search input:focus {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.chaoxing-skin #cx-titlebar .cx-tb-search input::placeholder {
+  color: #fff;
+  font-size: 12px;
+}
+
+.chaoxing-skin #cx-titlebar .cx-tb-search .cx-search-prefix {
+  position: absolute;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  left: 10px;
+  top: -1px;
+  color: rgb(192, 196, 204);
+  pointer-events: none;
+}
+
+/* 邀请码按钮 */
+.chaoxing-skin #cx-titlebar .cx-search-btn {
+  width: 36px;
+  height: 36px;
+  padding: 4px 0px;
+  transform: translateY(-4px);
+  -webkit-app-region: no-drag;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.chaoxing-skin #cx-titlebar .cx-search-btn:hover {
+  background-color: rgb(38, 51, 77);
+}
+
+.chaoxing-skin #cx-titlebar .cx-search-btn-text {
+  white-space: nowrap;
+  font-size: 8px;
+  font-weight: 400;
+  line-height: 11px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 窗口控制 */
+.chaoxing-skin #cx-titlebar .cx-tb-btns {
+  display: flex;
+  flex-grow: 0;
+  flex-shrink: 0;
+  text-align: center;
+  position: relative;
+  z-index: 3000;
+  -webkit-app-region: no-drag;
+  height: 100%;
+  margin-left: auto;
+  align-items: center;
+}
+
+.chaoxing-skin #cx-titlebar .cx-tb-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: no-drag;
+  height: 44px;
+  width: 38px;
+  color: rgb(138, 139, 153);
+  cursor: pointer;
+}
+
+.chaoxing-skin #cx-titlebar .cx-tb-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.chaoxing-skin #cx-titlebar .cx-tb-btn.cx-close:hover {
+  background-color: rgb(255, 77, 77);
+  color: #fff;
+}
+
+.chaoxing-skin #cx-titlebar .cx-tb-download {
+  position: absolute;
+  right: 130px;
+  top: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  z-index: 3000;
+  -webkit-app-region: no-drag;
+}
+
+.chaoxing-skin #cx-titlebar .cx-tb-dl-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.chaoxing-skin #cx-titlebar .cx-tb-dl-btn:hover {
+  background-color: rgb(38, 51, 77);
+}
+
+/* ===== 侧边栏 — 匹配 .aside ===== */
+
+/* 深色滚动条 */
+.chaoxing-skin ::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.chaoxing-skin ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chaoxing-skin ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+.chaoxing-skin ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.chaoxing-skin #sidebar.cx-collapsed {
+  width: 62px;
+  padding: 0px 4px;
+}
+
+/* 头像 */
+.chaoxing-skin #sidebar .cx-avatar {
+  padding: 0px 5px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.chaoxing-skin #sidebar.cx-collapsed .cx-avatar {
+  flex-direction: column;
+}
+
+.chaoxing-skin #sidebar .cx-avatar .cx-avatar-img {
+  height: 26px;
+  width: 26px;
+}
+
+.chaoxing-skin #sidebar .cx-avatar .cx-avatar-img img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.chaoxing-skin #sidebar.cx-collapsed .cx-avatar .cx-avatar-img {
+  width: 32px;
+  height: 32px;
+}
+
+.chaoxing-skin #sidebar .cx-avatar .cx-avatar-name {
+  width: calc(100% - 32px);
+  font-weight: 400;
+  font-size: 12px;
+  margin-left: 6px;
+  line-height: 17px;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  word-break: break-all;
+}
+
+.chaoxing-skin #sidebar.cx-collapsed .cx-avatar .cx-avatar-name {
+  width: 100%;
+  margin-left: 0px;
+  margin-top: 4px;
+  font-size: 10px;
+  line-height: 14px;
+  text-align: center;
+  color: #fff;
+}
+
+/* 导航 */
+.chaoxing-skin #sidebar .cx-nav {
+  overflow: auto;
+  flex: 1;
+  margin-top: 10px;
+}
+
+.chaoxing-skin .cx-nav-item {
+  padding: 11px 10px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: 5px;
+  transition: none 0s ease 0s;
+  position: relative;
+  -webkit-app-region: no-drag;
+}
+
+.chaoxing-skin .cx-nav-item:hover {
+  background: rgb(38, 51, 77);
+  border-radius: 8px;
+}
+
+.chaoxing-skin .cx-nav-item.active {
+  border-radius: 8px;
+  transition: none 0s ease 0s;
+  background: rgb(29, 40, 64) !important;
+}
+
+.chaoxing-skin .cx-nav-item:hover .cx-nav-label {
+  font-weight: 500;
+}
+
+.chaoxing-skin .cx-nav-item .cx-nav-label {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: rgb(172, 180, 191);
+  margin-left: 6px;
+}
+
+.chaoxing-skin .cx-nav-item.active .cx-nav-label {
+  font-weight: 500;
+  color: #fff;
+  margin-left: 6px;
+}
+
+/* 折叠态导航 */
+.chaoxing-skin #sidebar.cx-collapsed .cx-nav-item {
+  flex-direction: column;
+  padding: 6px 10px;
+}
+
+.chaoxing-skin #sidebar.cx-collapsed .cx-nav-item .cx-nav-label {
+  margin-left: 0px;
+  margin-top: 4px;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 14px;
+}
+
+.chaoxing-skin #sidebar.cx-collapsed .cx-nav-item .svg-icon {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.chaoxing-skin #sidebar.cx-collapsed .cx-nav-item.active .svg-icon {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* 设置项 — 钉在底部，匹配 .aside_menu_item_setting */
+.chaoxing-skin .cx-nav-item.cx-nav-item-setting {
+  position: absolute;
+  bottom: 10px;
+  width: calc(100% - 20px);
+  -webkit-app-region: no-drag;
+}
+
+.chaoxing-skin #sidebar.cx-collapsed .cx-nav-item.cx-nav-item-setting {
+  bottom: 10px;
+  width: calc(100% - 8px);
+}
+
+/* 折叠工具 */
+.chaoxing-skin #sidebar .cx-collapse-zone {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  height: 100%;
+  width: 12px;
+  display: flex;
+  align-items: center;
+  -webkit-app-region: no-drag;
+}
+
+.chaoxing-skin #sidebar .cx-collapse-zone:hover .cx-collapse-btn {
+  visibility: visible;
+  opacity: 1;
+  transition: all 0.3s ease 0s;
+}
+
+.chaoxing-skin #sidebar .cx-collapse-btn {
+  width: 12px;
+  height: 72px;
+  background: rgb(76, 91, 119);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 100px;
+  display: flex;
+  opacity: 0;
+  visibility: hidden;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.chaoxing-skin #sidebar .cx-collapse-btn:hover {
+  background: rgb(94, 109, 137);
+}
+
+.chaoxing-skin #sidebar .cx-collapse-btn:active {
+  background: rgb(29, 40, 64);
+}
+
+.chaoxing-skin #sidebar .cx-collapse-btn svg {
+  width: 8px;
+  height: 8px;
+  transition: transform 0.23s ease 0s;
+}
+
+.chaoxing-skin #sidebar.cx-collapsed .cx-collapse-btn svg {
+  transform: rotate(180deg);
+}

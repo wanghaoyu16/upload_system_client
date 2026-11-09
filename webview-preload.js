@@ -158,6 +158,10 @@
         });
     }
 
+    document.addEventListener('mousedown', function() {
+        console.log('[WebViewClick]');
+    }, true);
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', startPolling);
     } else {

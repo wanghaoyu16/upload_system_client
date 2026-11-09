@@ -79,7 +79,8 @@ const DEFAULT_AI_CONFIG = {
   api_key: '',
   maxCallbackRounds: 5,
   modelName: 'deepseek-chat',
-  opacity: 1.0
+  opacity: 1.0,
+  miniOpacity: 1.0
 };
 
 const AI_TOOLS = [
@@ -112,9 +113,9 @@ function _aiWrite(id, file, content, isAi) {
 function _aiIsProject(id) { return _aiStoreMap[id] === 'ai_images'; }
 
 // ===== 存储 =====
-async function loadAIConfig(modelId) {
+async function loadAIConfig(modelId, _isAi) {
   try {
-    const isAi = _aiIsProject(modelId);
+    const isAi = _isAi !== undefined ? _isAi : _aiIsProject(modelId);
     const raw = await _aiRead(modelId, 'ai_config.json', isAi);
     if (raw) { const cfg = JSON.parse(raw); return { ...DEFAULT_AI_CONFIG, ...cfg }; }
   } catch (e) { /* silent */ }
@@ -923,7 +924,8 @@ function showAIConfigDialog(modelData) {
       '<div class="mmd-ai-cfg-body">' +
         '<div class="mmd-ai-cfg-field"><label>重命名当前会话</label><input type="text" id="mmd-ai-sess-name" placeholder="新对话"></div>' +
         '<div class="mmd-ai-cfg-field"><label>自定义AI性格</label><textarea id="mmd-ai-personality" rows="4" placeholder="描述AI的性格、语气、行为特征..."></textarea></div>' +
-        '<div class="mmd-ai-cfg-field"><label>窗口不透明度 <span id="mmd-ai-opacity-val">100%</span></label><input type="range" id="mmd-ai-opacity" min="10" max="100" step="5" value="100"></div>' +
+        '<div class="mmd-ai-cfg-field"><label>窗口不透明度 <span id="mmd-ai-opacity-val">100%</span></label><input type="range" id="mmd-ai-opacity" min="1" max="100" step="1" value="100"></div>' +
+        '<div class="mmd-ai-cfg-field"><label>小窗口不透明度 <span id="mmd-ai-mini-opacity-val">100%</span></label><input type="range" id="mmd-ai-mini-opacity" min="1" max="100" step="1" value="100"></div>' +
         '<div class="mmd-ai-cfg-field"><label>base_url</label><input type="url" id="mmd-ai-base-url" placeholder="https://api.deepseek.com"></div>' +
         '<div class="mmd-ai-cfg-field"><label>api_key</label><div class="mmd-ai-key-wrap"><input type="password" id="mmd-ai-api-key" placeholder="sk-..."><button id="mmd-ai-key-tog"><i class="fa-solid fa-eye"></i></button></div></div>' +
         '<div class="mmd-ai-cfg-field"><label>AI模型 回调次数限制</label><input type="number" id="mmd-ai-max-rounds" min="1" max="20" value="5" style="width:80px;"></div>' +
@@ -938,6 +940,9 @@ function showAIConfigDialog(modelData) {
     var op = Math.round((cfg.opacity !== undefined ? cfg.opacity : 1.0) * 100);
     document.getElementById('mmd-ai-opacity').value = op;
     document.getElementById('mmd-ai-opacity-val').textContent = op + '%';
+    var mop = Math.round((cfg.miniOpacity !== undefined ? cfg.miniOpacity : 1.0) * 100);
+    document.getElementById('mmd-ai-mini-opacity').value = mop;
+    document.getElementById('mmd-ai-mini-opacity-val').textContent = mop + '%';
     document.getElementById('mmd-ai-base-url').value = cfg.base_url || '';
     document.getElementById('mmd-ai-api-key').value = cfg.api_key || '';
     document.getElementById('mmd-ai-max-rounds').value = cfg.maxCallbackRounds || 5;
@@ -949,6 +954,9 @@ function showAIConfigDialog(modelData) {
 
   document.getElementById('mmd-ai-opacity').addEventListener('input', function() {
     document.getElementById('mmd-ai-opacity-val').textContent = this.value + '%';
+  });
+  document.getElementById('mmd-ai-mini-opacity').addEventListener('input', function() {
+    document.getElementById('mmd-ai-mini-opacity-val').textContent = this.value + '%';
   });;
 
   var keyTog = document.getElementById('mmd-ai-key-tog');
@@ -967,12 +975,17 @@ function showAIConfigDialog(modelData) {
     cfg.api_key = document.getElementById('mmd-ai-api-key').value;
     cfg.maxCallbackRounds = parseInt(document.getElementById('mmd-ai-max-rounds').value) || 5;
     cfg.opacity = parseInt(document.getElementById('mmd-ai-opacity').value) / 100;
+    cfg.miniOpacity = parseInt(document.getElementById('mmd-ai-mini-opacity').value) / 100;
     cfg.enabled = true;
     await saveAIConfig(modelData.id, cfg);
     dlg.remove();
     if (typeof showToast === 'function') showToast('AI配置已保存', modelData.name + '配置已更新', 'success', 3000);
     var w = document.getElementById('mmd-ai-chat-win-' + modelData.id);
     if (w) { var t = w.querySelector('.mmd-ai-chat-title'); if (t) t.textContent = _esc(modelData.name) + ' - ' + cfg.sessionName; w.style.opacity = cfg.opacity; }
+    var mini = document.getElementById('mmd-mini-viewer');
+    if (mini && mini.dataset.mmdModelId == modelData.id) mini.style.opacity = cfg.miniOpacity;
+    var imini = document.getElementById('mmdai-mini-viewer');
+    if (imini && imini.dataset.mmdaiProjectId == modelData.id) imini.style.opacity = cfg.miniOpacity;
   };
 }
 

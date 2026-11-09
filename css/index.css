@@ -3751,6 +3751,13 @@ body.dark .mmd-ai-hover-text {
 }
 .mmd-ai-cfg-field input:focus,
 .mmd-ai-cfg-field textarea:focus { border-color: var(--theme); }
+.mmd-ai-cfg-field input[type="range"] {
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: var(--border);
+  margin: 3px 0;
+}
 .mmd-ai-key-wrap {
   display: flex;
   gap: 0;

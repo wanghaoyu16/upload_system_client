@@ -2,9 +2,19 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
+  <script>
+    // 超星皮肤检测
+    (function() {
+      try {
+        var isSkin = window.electronAPI && window.electronAPI.getChaoxingSkinSync && window.electronAPI.getChaoxingSkinSync();
+        if (isSkin) document.documentElement.classList.add('chaoxing-skin');
+      } catch(e) {}
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>作业上传系统</title>
   <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/chaoxing.css">
   <link rel="stylesheet" href="static/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="static/css/fontawesome.css">
   <link rel="stylesheet" href="static/cropper/cropper.min.css">
@@ -16,6 +26,7 @@
   }
 }
 </script>
+
 </head>
 <body class="splash-active">
 
@@ -36,6 +47,7 @@
 </div>
 
 <div id="app">
+  <div id="cx-titlebar"></div>
   <div id="titlebar">
     <div class="titlebar-left">
       <button class="titlebar-btn" id="btn-back" title="后退" disabled><i class="fa-solid fa-arrow-left"></i></button>
@@ -238,6 +250,13 @@
                 <span>视频音量</span>
                 <input type="range" id="bg-video-volume-slider" min="0" max="100" value="0">
                 <span class="opacity-value" id="bg-video-volume-value">0%</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;">
+                <span style="font-size:13px;">模仿超星学习通外观</span>
+                <label class="switch">
+                  <input type="checkbox" id="chaoxing-skin-toggle">
+                  <span class="slider"></span>
+                </label>
               </div>
             </div>
           </div>
@@ -721,6 +740,26 @@
             </div>
             <div class="settings-item">
               <div>
+                <div class="settings-label">启用快捷键隐藏(显示)学习通页面标签页</div>
+                <div class="settings-desc">按下 F9 隐藏/显示学习通标签页栏</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="xxt-tab-shortcut-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="settings-label">启用快捷键切换学习通皮肤</div>
+                <div class="settings-desc">按下 F1 快速切换学习通皮肤</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="chaoxing-skin-shortcut-toggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div>
                 <div class="settings-label">更改本地学习通账户登录信息</div>
                 <div class="settings-desc">仅本地储存，覆盖服务器数据用于登录学习通与环信(聊天)服务</div>
               </div>
@@ -1136,6 +1175,7 @@
 <script src="static/cropper/cropper.min.js"></script>
 <script src="node_modules/easemob-websdk/Easemob-chat.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/chaoxing.js"></script>
   <script type="module" src="js/mmd.js"></script>
 
 </body>

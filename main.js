@@ -33,6 +33,21 @@ let splashData = { url: null, filePath: null };
 const iconv = require('iconv-lite');
 let shouldShowWindow = true;
 
+// 客户端配置文件（根目录 config.json）
+const CLIENT_CONFIG_PATH = path.join(__dirname, 'config.json');
+function loadClientConfig() {
+    try {
+        if (fs.existsSync(CLIENT_CONFIG_PATH)) {
+            return JSON.parse(fs.readFileSync(CLIENT_CONFIG_PATH, 'utf-8'));
+        }
+    } catch (e) {
+        console.error('[Main] 读取客户端配置文件失败:', e.message);
+    }
+    return {};
+}
+const clientConfig = loadClientConfig();
+const UPDATE_HOST = String(clientConfig.updateHost || '').replace(/\/+$/, '');
+
 // 透明背景(实验性)配置
 const acrylicConfigPath = path.join(app.getPath('userData'), 'acrylic-config.json');
 function loadAcrylicConfig() {
@@ -93,6 +108,20 @@ function loadClickThroughConfig() {
 function saveClickThroughConfig(enabled) {
     fs.writeFileSync(clickThroughConfigPath, JSON.stringify({ enabled: !!enabled }));
 }
+const chaoxingSkinConfigPath = path.join(app.getPath('userData'), 'chaoxing-skin.json');
+function loadChaoxingSkinConfig() {
+    try {
+        if (fs.existsSync(chaoxingSkinConfigPath)) {
+            return JSON.parse(fs.readFileSync(chaoxingSkinConfigPath, 'utf-8')).enabled === true;
+        }
+    } catch (e) {}
+    return false;
+}
+function saveChaoxingSkinConfig(enabled) {
+    fs.writeFileSync(chaoxingSkinConfigPath, JSON.stringify({ enabled: !!enabled }));
+}
+let chaoxingSkinEnabled = loadChaoxingSkinConfig();
+
 let clickThroughEnabled = loadClickThroughConfig();
 
 const blockedProtocols = ['bytedance:', 'lark:', 'feishu:', 'snssdk:', 'douyin:', 'bitbrowser:'];
@@ -781,6 +810,18 @@ if (!gotTheLock) {
             }
         }
         items.push({ type: 'separator' });
+        items.push({
+            label: chaoxingSkinEnabled ? '禁用模仿学习通窗口样式' : '启用模仿学习通窗口样式',
+            click: () => {
+                chaoxingSkinEnabled = !chaoxingSkinEnabled;
+                saveChaoxingSkinConfig(chaoxingSkinEnabled);
+                if (mainWindow && !mainWindow.isDestroyed()) {
+                    mainWindow.loadFile('index.html');
+                }
+                updateTrayMenu();
+            }
+        });
+        items.push({ type: 'separator' });
         items.push({ label: '退出', click: () => { isQuitting = true; app.quit(); } });
         tray.setContextMenu(Menu.buildFromTemplate(items));
     }
@@ -906,6 +947,12 @@ if (!gotTheLock) {
             if (input.type !== 'keyDown') return;
             if (input.key === 'Escape' && !input.control && !input.alt && !input.meta && escHideEnabled) {
                 mainWindow.hide();
+            }
+            if (input.key === 'F9' && !input.control && !input.alt && !input.meta && !input.shift) {
+                mainWindow.webContents.send('xxt-tab-shortcut-triggered');
+            }
+            if (input.key === 'F1' && !input.control && !input.alt && !input.meta && !input.shift) {
+                mainWindow.webContents.send('chaoxing-skin-shortcut-triggered');
             }
             if (input.key === 'F10' && !input.control && !input.alt && !input.meta && !input.shift) {
                 mainWindow.webContents.send('browser-hide-shortcut-triggered');
@@ -1172,26 +1219,21 @@ ipcMain.handle('set-ignore-mouse-events', (event, ignore) => {
 if (process.argv.includes('--hidden')) {
     shouldShowWindow = false;
 }
-    function getUpdateHost() {
-        if (process.env.UPDATE_HOST) return process.env.UPDATE_HOST;
-        try {
-            const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf-8'));
-            if (cfg.updateHost) return cfg.updateHost;
-        } catch(e) {}
-        return '请在此处输入更新服务器IP';
-    }
     function checkForLocalUpdate() {
         return new Promise((resolve) => {
+            if (!UPDATE_HOST) {
+                resolve({ checked: false, available: false, current: app.getVersion() });
+                return;
+            }
             const currentVer = app.getVersion();
-            const updateHost = getUpdateHost();
-            const req = http.get(`http://${updateHost}:80/version.json`, (res) => {
+            const req = http.get(UPDATE_HOST + '/version.json', (res) => {
                 let body = '';
                 res.on('data', chunk => body += chunk);
                 res.on('end', () => {
                     try {
                         const info = JSON.parse(body);
                         const dlUrl = info.download_url || '';
-                        const fullDlUrl = dlUrl.startsWith('http') ? dlUrl : `http://${updateHost}` + (dlUrl.startsWith('/') ? '' : '/') + dlUrl;
+                        const fullDlUrl = dlUrl.startsWith('http') ? dlUrl : UPDATE_HOST + (dlUrl.startsWith('/') ? '' : '/') + dlUrl;
                         resolve({
                             checked: true,
                             available: info.version && info.version !== currentVer,
@@ -1427,6 +1469,16 @@ if (process.argv.includes('--hidden')) {
         }
         registerAllShortcuts();
 
+        ipcMain.on('toggle-fullscreen', () => {
+            if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.setFullScreen(!mainWindow.isFullScreen());
+                mainWindow.webContents.send('fullscreen-changed', mainWindow.isFullScreen());
+            }
+        });
+        ipcMain.on('get-fullscreen-state', (e) => {
+            e.returnValue = mainWindow ? mainWindow.isFullScreen() : false;
+        });
+
         ipcMain.on('set-esc-hide-enabled', (event, enable) => {
             escHideEnabled = enable;
         });
@@ -1540,15 +1592,6 @@ if (process.argv.includes('--hidden')) {
                     mainWindow.show();
                 }
             }
-        });
-        ipcMain.on('toggle-fullscreen', () => {
-            if (mainWindow && !mainWindow.isDestroyed()) {
-                mainWindow.setFullScreen(!mainWindow.isFullScreen());
-                mainWindow.webContents.send('fullscreen-changed', mainWindow.isFullScreen());
-            }
-        });
-        ipcMain.on('get-fullscreen-state', (e) => {
-            e.returnValue = mainWindow ? mainWindow.isFullScreen() : false;
         });
         ipcMain.on('refocus-main-window', () => {
             if (mainWindow && !mainWindow.isDestroyed()) {
@@ -1709,6 +1752,22 @@ if (process.argv.includes('--hidden')) {
         ipcMain.handle('get-auto-start', () => {
             const settings = app.getLoginItemSettings();
             return settings.openAtLogin;
+        });
+
+        ipcMain.on('set-chaoxing-skin', (event, enabled) => {
+            saveChaoxingSkinConfig(enabled);
+            chaoxingSkinEnabled = !!enabled;
+            if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.reload();
+            }
+        });
+
+        ipcMain.handle('get-chaoxing-skin', () => {
+            return chaoxingSkinEnabled;
+        });
+
+        ipcMain.on('get-chaoxing-skin-sync', (event) => {
+            event.returnValue = chaoxingSkinEnabled;
         });
 
         ipcMain.handle('get-app-version', () => {
@@ -2070,7 +2129,7 @@ if (process.argv.includes('--hidden')) {
         });
 
         ipcMain.handle('read-cxstudy-config', async () => {
-            var installPath = process.env.CXSTUDY_PATH || path.join(process.env['ProgramFiles'] || 'C:\\Program Files', 'cxstudy', 'latest');
+            var installPath = 'F:\\Program Files\\cxstudy\\latest';
             if (!fs.existsSync(installPath)) return { error: '未找到学习通安装目录: ' + installPath };
             var result = { installPath: installPath, files: {} };
             // 读取官方客户端的 package.json

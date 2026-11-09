@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<title>学习通</title>
+<style>
+/* ===== Element Plus 变量与基础样式 ===== */
+/* 注意:只是高仿学习通，非官方学习通页面 */
+:root { --el-color-white: #ffffff; --el-color-black: #000000; --el-color-primary-rgb: 64,158,255; --el-color-success-rgb: 103,194,58; --el-color-warning-rgb: 230,162,60; --el-color-danger-rgb: 245,108,108; --el-color-error-rgb: 245,108,108; --el-color-info-rgb: 144,147,153; --el-font-size-extra-large: 20px; --el-font-size-large: 18px; --el-font-size-medium: 16px; --el-font-size-base: 14px; --el-font-size-small: 13px; --el-font-size-extra-small: 12px; --el-font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif; --el-font-weight-primary: 500; --el-font-line-height-primary: 24px; --el-index-normal: 1; --el-index-top: 1000; --el-index-popper: 2000; --el-border-radius-base: 4px; --el-border-radius-small: 2px; --el-border-radius-round: 20px; --el-border-radius-circle: 100%; --el-transition-duration: .3s; --el-transition-duration-fast: .2s; --el-transition-function-ease-in-out-bezier: cubic-bezier(.645,.045,.355,1); --el-transition-function-fast-bezier: cubic-bezier(.23,1,.32,1); --el-transition-all: all var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier); --el-transition-fade: opacity var(--el-transition-duration) var(--el-transition-function-fast-bezier); --el-transition-md-fade: transform var(--el-transition-duration) var(--el-transition-function-fast-bezier),opacity var(--el-transition-duration) var(--el-transition-function-fast-bezier); --el-transition-fade-linear: opacity var(--el-transition-duration-fast) linear; --el-transition-border: border-color var(--el-transition-duration-fast) var(--el-transition-function-ease-in-out-bezier); --el-transition-box-shadow: box-shadow var(--el-transition-duration-fast) var(--el-transition-function-ease-in-out-bezier); --el-transition-color: color var(--el-transition-duration-fast) var(--el-transition-function-ease-in-out-bezier); --el-component-size-large: 40px; --el-component-size: 32px; --el-component-size-small: 24px; }
+:root { color-scheme: light; --el-color-primary: #409eff; --el-color-primary-light-3: rgb(121,187,255); --el-color-primary-light-5: rgb(160,207,255); --el-color-primary-light-7: rgb(198,226,255); --el-color-primary-light-8: rgb(217,236,255); --el-color-primary-light-9: rgb(236,245,255); --el-color-primary-dark-2: rgb(51,126,204); --el-color-success: #67c23a; --el-color-success-light-3: rgb(149,212,117); --el-color-success-light-5: rgb(179,225,157); --el-color-success-light-7: rgb(209,237,196); --el-color-success-light-8: rgb(225,243,216); --el-color-success-light-9: rgb(240,249,235); --el-color-success-dark-2: rgb(82,155,46); --el-color-warning: #e6a23c; --el-color-warning-light-3: rgb(238,190,119); --el-color-warning-light-5: rgb(243,209,158); --el-color-warning-light-7: rgb(248,227,197); --el-color-warning-light-8: rgb(250,236,216); --el-color-warning-light-9: rgb(253,246,236); --el-color-warning-dark-2: rgb(184,130,48); --el-color-danger: #f56c6c; --el-color-danger-light-3: rgb(248,152,152); --el-color-danger-light-5: rgb(250,182,182); --el-color-danger-light-7: rgb(252,211,211); --el-color-danger-light-8: rgb(253,226,226); --el-color-danger-light-9: rgb(254,240,240); --el-color-danger-dark-2: rgb(196,86,86); --el-color-error: #f56c6c; --el-color-error-light-3: rgb(248,152,152); --el-color-error-light-5: rgb(250,182,182); --el-color-error-light-7: rgb(252,211,211); --el-color-error-light-8: rgb(253,226,226); --el-color-error-light-9: rgb(254,240,240); --el-color-error-dark-2: rgb(196,86,86); --el-color-info: #909399; --el-color-info-light-3: rgb(177,179,184); --el-color-info-light-5: rgb(200,201,204); --el-color-info-light-7: rgb(222,223,224); --el-color-info-light-8: rgb(233,233,235); --el-color-info-light-9: rgb(244,244,245); --el-color-info-dark-2: rgb(115,118,122); --el-bg-color: #ffffff; --el-bg-color-page: #f2f3f5; --el-bg-color-overlay: #ffffff; --el-text-color-primary: #303133; --el-text-color-regular: #606266; --el-text-color-secondary: #909399; --el-text-color-placeholder: #a8abb2; --el-text-color-disabled: #c0c4cc; --el-border-color: #dcdfe6; --el-border-color-light: #e4e7ed; --el-border-color-lighter: #ebeef5; --el-border-color-extra-light: #f2f6fc; --el-border-color-dark: #d4d7de; --el-border-color-darker: #cdd0d6; --el-fill-color: #f0f2f5; --el-fill-color-light: #f5f7fa; --el-fill-color-lighter: #fafafa; --el-fill-color-extra-light: #fafcff; --el-fill-color-dark: #ebedf0; --el-fill-color-darker: #e6e8eb; --el-fill-color-blank: #ffffff; --el-box-shadow: 0px 12px 32px 4px rgba(0,0,0,.04),0px 8px 20px rgba(0,0,0,.08); --el-box-shadow-light: 0px 0px 12px rgba(0,0,0,.12); --el-box-shadow-lighter: 0px 0px 6px rgba(0,0,0,.12); --el-box-shadow-dark: 0px 16px 48px 16px rgba(0,0,0,.08),0px 12px 32px rgba(0,0,0,.12),0px 8px 16px -8px rgba(0,0,0,.16); --el-disabled-bg-color: var(--el-fill-color-light); --el-disabled-text-color: var(--el-text-color-placeholder); --el-disabled-border-color: var(--el-border-color-light); --el-overlay-color: rgba(0,0,0,.8); --el-overlay-color-light: rgba(0,0,0,.7); --el-overlay-color-lighter: rgba(0,0,0,.5); --el-mask-color: rgba(255,255,255,.9); --el-mask-color-extra-light: rgba(255,255,255,.3); --el-border-width: 1px; --el-border-style: solid; --el-border-color-hover: var(--el-text-color-disabled); --el-border: var(--el-border-width) var(--el-border-style) var(--el-border-color); --el-svg-monochrome-grey: var(--el-border-color); }
+
+.fade-in-linear-enter-active, .fade-in-linear-leave-active { transition: var(--el-transition-fade-linear); }
+.fade-in-linear-enter-from, .fade-in-linear-leave-to { opacity: 0; }
+.el-fade-in-linear-enter-active, .el-fade-in-linear-leave-active { transition: var(--el-transition-fade-linear); }
+.el-fade-in-linear-enter-from, .el-fade-in-linear-leave-to { opacity: 0; }
+.el-fade-in-enter-active, .el-fade-in-leave-active { transition: all var(--el-transition-duration) cubic-bezier(.55,0,.1,1); }
+.el-fade-in-enter-from, .el-fade-in-leave-active { opacity: 0; }
+.el-zoom-in-center-enter-active, .el-zoom-in-center-leave-active { transition: all var(--el-transition-duration) cubic-bezier(.55,0,.1,1); }
+.el-zoom-in-center-enter-from, .el-zoom-in-center-leave-active { opacity: 0; transform: scaleX(0); }
+.el-zoom-in-top-enter-active, .el-zoom-in-top-leave-active { opacity: 1; transform: scaleY(1); transform-origin: center top; transition: var(--el-transition-md-fade); }
+.el-zoom-in-top-enter-active[data-popper-placement^="top"], .el-zoom-in-top-leave-active[data-popper-placement^="top"] { transform-origin: center bottom; }
+.el-zoom-in-top-enter-from, .el-zoom-in-top-leave-active { opacity: 0; transform: scaleY(0); }
+.el-zoom-in-bottom-enter-active, .el-zoom-in-bottom-leave-active { opacity: 1; transform: scaleY(1); transform-origin: center bottom; transition: var(--el-transition-md-fade); }
+.el-zoom-in-bottom-enter-from, .el-zoom-in-bottom-leave-active { opacity: 0; transform: scaleY(0); }
+.el-zoom-in-left-enter-active, .el-zoom-in-left-leave-active { opacity: 1; transform: scale(1); transform-origin: left top; transition: var(--el-transition-md-fade); }
+.el-zoom-in-left-enter-from, .el-zoom-in-left-leave-active { opacity: 0; transform: scale(0.45); }
+.collapse-transition { transition: var(--el-transition-duration) height ease-in-out,var(--el-transition-duration) padding-top ease-in-out,var(--el-transition-duration) padding-bottom ease-in-out; }
+.el-collapse-transition-enter-active, .el-collapse-transition-leave-active { transition: var(--el-transition-duration) max-height ease-in-out,var(--el-transition-duration) padding-top ease-in-out,var(--el-transition-duration) padding-bottom ease-in-out; }
+.horizontal-collapse-transition { transition: var(--el-transition-duration) width ease-in-out,var(--el-transition-duration) padding-left ease-in-out,var(--el-transition-duration) padding-right ease-in-out; }
+
+.el-list-enter-from, .el-list-leave-to { opacity: 0; transform: translateY(-30px); }
+.el-list-leave-active { position: absolute !important; }
+.el-opacity-transition { transition: opacity var(--el-transition-duration) cubic-bezier(.55,0,.1,1); }
+.el-icon--right { margin-left: 5px; }
+.el-icon--left { margin-right: 5px; }
+@keyframes rotating {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+.el-icon { --color: inherit; align-items: center; display: inline-flex; height: 1em; justify-content: center; line-height: 1em; position: relative; width: 1em; fill: currentcolor; color: var(--color); font-size: inherit; }
+.el-icon.is-loading { animation: 2s linear 0s infinite normal none running rotating; }
+.el-icon svg { height: 1em; width: 1em; }
+
+/* ===== 基础重置 ===== */
+:root { font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif; line-height: 1.5; font-weight: 400; color-scheme: light dark; color: rgba(255, 255, 255, 0.87); background-color: rgb(36, 36, 36); font-synthesis: none; text-rendering: optimizelegibility; -webkit-font-smoothing: antialiased; text-size-adjust: 100%; }
+* { margin: 0px; padding: 0px; overflow-wrap: break-word; box-sizing: border-box; }
+body { font-size: 14px; color: rgb(19, 27, 38); font-family: "SF Pro Display", "Helvetica Neue", Helvetica, Tahoma, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; overflow-x: auto; -webkit-font-smoothing: antialiased; }
+table { border: 0px; border-collapse: collapse; border-spacing: 0px; font-size: 14px; }
+table th { font-weight: 400; }
+ul, ol, li { list-style-type: none; }
+h1, h2, h3, h4, h5, h6 { font-weight: 400; }
+input, select, textarea { vertical-align: middle; color: rgb(19, 27, 38); border: 0px; outline: none; resize: none; font-family: "SF Pro Display", "Helvetica Neue", Helvetica, Tahoma, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
+input[type="file"] { display: block; opacity: 0; }
+a { text-decoration: none; }
+b, i, strong, em { font-weight: 400; font-style: normal; }
+img { border: 0px; }
+input[type="text"] { border-radius: 0px; padding: 0px; font-size: 13px; line-height: 18.2px; outline: none; box-shadow: none; }
+input[type="text"]:focus { box-shadow: none; }
+a { font-weight: 500; color: rgb(100, 108, 255); text-decoration: inherit; }
+a:hover { color: rgb(83, 91, 242); }
+body { text-rendering: optimizelegibility; margin: 0px; padding: 0px; height: 100%; width: 100%; background: transparent; user-select: none; -webkit-font-smoothing: antialiased; font-family: CXChineseQuote, -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important; }
+@font-face { font-family: CXChineseQuote; font-weight: 300; src: local("PingFangSC-Light"); unicode-range: U+2018, U+2019, U+201C, U+201D; }
+@font-face { font-family: CXChineseQuote; font-weight: 400; src: local("PingFangSC-Regular"); unicode-range: U+2018, U+2019, U+201C, U+201D; }
+@font-face { font-family: CXChineseQuote; font-weight: 500; src: local("PingFangSC-Medium"); unicode-range: U+2018, U+2019, U+201C, U+201D; }
+@font-face { font-family: CXChineseQuote; font-weight: 600; src: local("PingFangSC-Semibold"); unicode-range: U+2018, U+2019, U+201C, U+201D; }
+h1 { font-size: 3.2em; line-height: 1.1; }
+button { border-radius: 8px; border: 1px solid transparent; padding: 0.6em 1.2em; font-size: 1em; font-weight: 500; font-family: inherit; background-color: rgb(26, 26, 26); cursor: pointer; transition: border-color 0.25s ease 0s; }
+.card { padding: 2em; }
+#app { width: 100%; height: 100%; overflow: hidden; }
+@media (prefers-color-scheme: light) {
+  :root { color: rgb(33, 53, 71); background-color: rgb(255, 255, 255); }
+  a:hover { color: rgb(116, 123, 255); }
+  button { background-color: rgb(249, 249, 249); }
+}
+.el-image__inner { -webkit-user-drag: none; }
+.ql-editor { padding: 0px !important; }
+.ql-snow .ql-editor img { max-height: 160px; margin: 0px 5px; -webkit-user-drag: none; max-width: 160px !important; }
+.ql-clipboard { opacity: 0; height: 1px; }
+.ql-snow .ql-editor img[width] { vertical-align: bottom; -webkit-user-drag: none; margin: 0px 2px; }
+.animate__fade-enter-from, .animate__fade-leave-to { opacity: 0; }
+.animate__fade-enter-active, .animate__fade-leave-active { transition: opacity 0.3s ease 0s; }
+.el-dialog { --el-dialog-padding-primary: 0 !important; border-radius: 10px !important; }
+.el-dialog__header { margin-right: 0px !important; padding-bottom: 0px !important; }
+.el-dialog__footer { padding-top: 0px !important; }
+.el-scrollbar__view { height: 100%; }
+.el-scrollbar__bar.is-vertical { width: 8px !important; }
+.el-scrollbar__bar.is-vertical .el-scrollbar__thumb { background-color: rgb(218, 223, 229) !important; opacity: 1 !important; }
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizelegibility; margin: 0px; padding: 0px; height: 100%; width: 100%; background: transparent; user-select: none; }
+svg { display: inline-block !important; }
+html { box-sizing: border-box; height: 100%; width: 100%; margin: 0px; padding: 0px; background: transparent; }
+html ::-webkit-scrollbar { display: none; }
+*, ::before, ::after { box-sizing: inherit; }
+div:focus { outline: none; }
+a:focus, a:active { outline: none; }
+a, a:focus, a:hover { cursor: pointer; color: inherit; text-decoration: none; }
+a.hyper-link { font-weight: 400; text-decoration: revert; }
+a.hyper-link:hover { opacity: 0.7; }
+.clearfix::after { visibility: hidden; display: block; font-size: 0px; content: " "; clear: both; height: 0px; }
+.app-main { min-height: 100%; }
+.app-container { padding: 20px; }
+.svg-icon[data-v-6f8d4299] { vertical-align: -0.15em; fill: currentcolor; overflow: hidden; color: var(--color); }
+.window-letter-spacing { letter-spacing: 0.04em; }
+
+html { -webkit-app-region: drag; }
+body { -webkit-app-region: drag; margin: 0; padding: 0; height: 100%; width: 100%; }
+.warpper_main, .warpper_main_view, #xxt-view, #main-frame { -webkit-app-region: no-drag; }
+
+/* ===== 页面特有样式 ===== */
+.aside[data-v-87095367] { height: 100%; width: 120px; padding: 0px 10px; background-color: rgb(49, 62, 89); position: relative; -webkit-app-region: drag; transition: width 0.23s ease 0s; }
+.aside .right_hover_tool[data-v-87095367] { position: absolute; top: 0px; right: 0px; height: 100%; width: 12px; display: flex; align-items: center; -webkit-app-region: no-drag; }
+.aside .right_hover_tool:hover .aside_tool[data-v-87095367] { visibility: visible; opacity: 1; transition: all 0.3s ease 0s; }
+.aside .right_hover_tool .aside_tool[data-v-87095367] { width: 12px; height: 72px; background: rgb(76, 91, 119); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 100px; display: flex; opacity: 0; visibility: hidden; align-items: center; justify-content: center; cursor: pointer; }
+.aside .right_hover_tool .aside_tool[data-v-87095367]:hover { background: rgb(94, 109, 137); }
+.aside .right_hover_tool .aside_tool[data-v-87095367]:active { background: rgb(29, 40, 64); }
+.aside .right_hover_tool .aside_tool .aside_tool_icon[data-v-87095367] { transition: transform 0.23s ease 0s; }
+.aside .right_hover_tool .aside_tool.is-collapsed .aside_tool_icon[data-v-87095367] { transform: rotate(180deg); }
+.aside .aside_avator[data-v-87095367] { padding: 0px 5px; display: flex; align-items: center; cursor: pointer; -webkit-app-region: no-drag; }
+.aside .aside_avator .aside_avator_img[data-v-87095367] { height: 26px; width: 26px; }
+.aside .aside_avator .aside_avator_img img[data-v-87095367] { width: 100%; height: 100%; border-radius: 50%; }
+.aside .aside_avator .aside_avator_name[data-v-87095367] { width: calc(100% - 32px); font-weight: 400; font-size: 12px; margin-left: 6px; line-height: 17px; color: rgb(255, 255, 255); overflow: hidden; text-overflow: ellipsis; -webkit-box-orient: vertical; display: -webkit-box; -webkit-line-clamp: 2; word-break: break-all; }
+.aside .aside_menu[data-v-87095367] { overflow: scroll; margin-top: 10px; -webkit-app-region: no-drag; }
+.aside .aside_menu .aside_menu_item[data-v-87095367] { padding: 11px 10px; display: flex; align-items: center; cursor: pointer; margin-bottom: 5px; transition: none 0s ease 0s; position: relative; }
+.aside .aside_menu .aside_menu_item .dot[data-v-87095367] { position: absolute; right: 10.5px; top: 17px; width: 8px; height: 8px; background: rgb(223, 87, 71); border-radius: 50%; }
+.aside .aside_menu .aside_menu_item .badge[data-v-87095367] { position: absolute; right: 10px; top: 12px; background: rgb(224, 88, 71); border-radius: 100px; z-index: 2; }
+.aside .aside_menu .aside_menu_item .badge .text[data-v-87095367] { width: 16px; height: 16px; font-style: normal; font-weight: 500; font-size: 10px; text-align: center; color: rgb(255, 255, 255); }
+.aside .aside_menu .aside_menu_item[data-v-87095367]:hover { background: rgb(38, 51, 77); border-radius: 8px; }
+.aside .aside_menu .aside_menu_item:hover .aside_menu_item_name[data-v-87095367] { font-weight: 500; }
+.aside .aside_menu .aside_menu_item .aside_menu_item_name[data-v-87095367] { font-weight: 400; font-size: 14px; line-height: 20px; color: rgb(172, 180, 191); margin-left: 6px; }
+.aside .aside_menu .aside_menu_item_setting[data-v-87095367] { position: absolute; bottom: 10px; width: calc(100% - 20px); -webkit-app-region: no-drag; }
+.aside .aside_menu .aside_menu_item_active[data-v-87095367] { border-radius: 8px; transition: none 0s ease 0s; background: rgb(29, 40, 64) !important; }
+.aside .aside_menu .aside_menu_item_active .aside_menu_item_name[data-v-87095367] { font-weight: 500; color: rgb(255, 255, 255); margin-left: 6px; }
+.aside_hide[data-v-87095367] { width: 62px; padding: 0px 4px; transition: width 0.23s ease 0s; }
+.aside_hide .aside_avator[data-v-87095367] { flex-direction: column; -webkit-app-region: no-drag; }
+.aside_hide .aside_avator .aside_avator_img[data-v-87095367] { width: 32px; height: 32px; }
+.aside_hide .aside_avator .aside_avator_name[data-v-87095367] { width: 100%; margin-left: 0px; margin-top: 4px; font-size: 10px; line-height: 14px; text-align: center; color: rgb(255, 255, 255); }
+.aside_hide .aside_menu[data-v-87095367] { -webkit-app-region: no-drag; }
+.aside_hide .aside_menu .aside_menu_item[data-v-87095367] { flex-direction: column; padding: 6px 10px; }
+.aside_hide .aside_menu .aside_menu_item .dot[data-v-87095367] { right: 8px; top: 8px; }
+.aside_hide .aside_menu .aside_menu_item .badge[data-v-87095367] { right: 6px; top: 2px; }
+.aside_hide .aside_menu .aside_menu_item .aside_menu_item_name[data-v-87095367] { margin-left: 0px; margin-top: 4px; font-weight: 400; font-size: 10px; line-height: 14px; }
+.aside_hide .aside_menu .aside_menu_item_setting[data-v-87095367] { -webkit-app-region: no-drag; bottom: 10px; width: calc(100% - 8px); }
+.window[data-v-f13919dd] { width: 100%; height: 44px; line-height: 44px; display: flex; -webkit-app-region: drag; position: fixed; top: 0px; z-index: 99999; background-color: rgb(49, 62, 89); }
+.window .window_search[data-v-f13919dd] { position: absolute; z-index: 999999; width: 430px; height: 28px; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; justify-content: space-between; }
+.window .window_search .window_search_input[data-v-f13919dd] { position: relative; -webkit-app-region: no-drag; height: 100%; display: flex; }
+.window .window_search .window_search_input .search_input_inner[data-v-f13919dd] { width: 380px; height: 100%; appearance: none; outline: none; padding: 4px 30px; background-color: rgba(243, 244, 244, 0.24); border-radius: 100px; border: none; font-style: normal; font-weight: 400; font-size: 12px; line-height: 17px; color: rgb(255, 255, 255); }
+.window .window_search .window_search_input .search_input_inner[data-v-f13919dd]:hover { background-color: rgba(255, 255, 255, 0.3); }
+.window .window_search .window_search_input .search_input_inner[data-v-f13919dd]:focus { background-color: rgba(255, 255, 255, 0.3); }
+.window .window_search .window_search_input .search_input_inner[data-v-f13919dd]::-webkit-input-placeholder { color: rgb(255, 255, 255); font-size: 12px; }
+.window .window_search .window_search_input .search_input_prefix[data-v-f13919dd] { position: absolute; height: 100%; display: flex; align-items: center; left: 10px; top: -1px; color: rgb(192, 196, 204); }
+.window .window_search .window_search_btn[data-v-f13919dd] { width: 36px; height: 36px; padding: 4px 0px; transform: translateY(-4px); -webkit-app-region: no-drag; display: flex; flex-direction: column; justify-content: space-between; align-items: center; border-radius: 8px; cursor: pointer; }
+.window .window_search .window_search_btn[data-v-f13919dd]:hover { background-color: rgb(38, 51, 77); }
+.window .window_search .window_search_btn[data-v-f13919dd]:focus { background-color: rgb(38, 51, 77); }
+.window .window_search .window_search_btn .window_btn_text[data-v-f13919dd] { white-space: nowrap; font-size: 8px; font-weight: 400; line-height: 11px; color: rgba(255, 255, 255, 0.8); }
+.window .download_controls[data-v-f13919dd] { width: 240px; height: 30px; display: flex; justify-content: flex-end; align-items: center; position: absolute; z-index: 9999; top: 7px; }
+.window .download_controls .windows_icon_down[data-v-f13919dd] { -webkit-app-region: no-drag; height: 44px; width: 60px; padding: 10px 22px; position: relative; }
+.window .download_controls .windows_icon_down .download_btn[data-v-f13919dd] { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.window .download_controls .windows_icon_down .download_btn[data-v-f13919dd]:hover { background-color: rgb(38, 51, 77); }
+.window .window_controls[data-v-f13919dd] { display: flex; flex-grow: 0; flex-shrink: 0; text-align: center; position: relative; z-index: 3000; -webkit-app-region: no-drag; height: 100%; margin-left: auto; align-items: center; }
+.window .window_controls .windows_icon_bg[data-v-f13919dd] { display: flex; align-items: center; justify-content: center; -webkit-app-region: no-drag; height: 44px; width: 38px; color: rgb(138, 139, 153); cursor: pointer; }
+.window .window_controls .windows_icon_bg_hover[data-v-f13919dd]:hover { background-color: rgba(255, 255, 255, 0.1); }
+.window .window_controls .windows_icon_bg.close_icon[data-v-f13919dd]:hover { background-color: rgb(255, 77, 77); color: rgb(255, 255, 255); }
+.wrapper[data-v-e6ae7b38] { height: 100%; width: 100%; border-radius: 10px; }
+.wrapper .warpper_main[data-v-e6ae7b38] { width: 100%; height: calc(100% - 44px); margin-top: 44px; display: flex; }
+.wrapper .warpper_main .warpper_main_view[data-v-e6ae7b38] { transition: width 0.23s ease 0s; height: 100%; background-color: rgb(255, 255, 255); }
+.wrapper .warpper_main .width120[data-v-e6ae7b38] { width: calc(100% - 120px); }
+.wrapper .warpper_main .width60[data-v-e6ae7b38] { width: calc(100% - 60px); }
+.el-progress { align-items: center; display: flex; line-height: 1; position: relative; }
+.el-progress__text { color: var(--el-text-color-regular); font-size: 14px; line-height: 1; margin-left: 5px; min-width: 50px; }
+.el-progress-bar { box-sizing: border-box; flex-grow: 1; }
+.el-progress-bar__outer { background-color: var(--el-border-color-lighter); border-radius: 100px; height: 6px; overflow: hidden; position: relative; vertical-align: middle; }
+.el-progress-bar__inner { background-color: var(--el-color-primary); border-radius: 100px; height: 100%; left: 0px; line-height: 1; position: absolute; text-align: right; top: 0px; transition: width 0.6s ease 0s; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- ===== SVG 图标库 ===== -->
+<svg id="__svg__icons__dom__" xmlns="http://www.w3.org/2000/svg" xmlns:link="http://www.w3.org/1999/xlink" style="position: absolute; width: 0px; height: 0px;">
+
+  <!-- 搜索图标：fill=currentColor，继承 --color -->
+  <symbol fill="currentColor" viewBox="0 0 13 14" id="icon-search">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M1.896 6.458a4.063 4.063 0 1 1 8.125 0 4.063 4.063 0 0 1-8.125 0Zm4.062-5.146a5.146 5.146 0 1 0 3.383 9.024l2.133 2.133a.542.542 0 0 0 .766-.766l-2.162-2.161a5.146 5.146 0 0 0-4.12-8.23Z"/>
+  </symbol>
+
+  <!-- 笔记图标：fill=currentColor -->
+  <symbol fill="currentColor" viewBox="0 0 16 16" id="icon-note">
+    <path d="M13.34 3.07a1.71 1.71 0 0 0-.763-.869l.508-.65a.568.568 0 1 1 .895.7l-.64.819Z"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M9.641 7.84a.59.59 0 0 1-.93-.726l3.847-4.923a1.696 1.696 0 0 0-.804-.201H3.371c-.941 0-1.704.763-1.704 1.704v9.268c0 .94.763 1.704 1.704 1.704h8.383c.941 0 1.705-.763 1.705-1.704V3.694c0-.212-.04-.414-.11-.601L9.642 7.84Zm-5.19 3.583a.426.426 0 0 0-.426.426v.032c0 .236.19.426.426.426h5.634c.235 0 .425-.19.425-.426v-.032a.426.426 0 0 0-.425-.426H4.45Zm-.426-1.637c0-.236.19-.426.426-.426h2.686c.235 0 .426.19.426.426v.032c0 .235-.191.426-.426.426H4.45a.426.426 0 0 1-.426-.426v-.032Z"/>
+  </symbol>
+
+  <symbol fill="none" viewBox="0 0 16 16" id="icon-home">
+    <path d="M15.337 7.998 8.007.666.665 7.998a.32.32 0 0 0 .452.453l1.257-1.255v7.048c0 .529.428.957.957.957h2.295a.957.957 0 0 0 .957-.957v-2.948c0-.175.142-.317.317-.317h2.345c.175 0 .317.142.317.317v2.948c0 .529.429.957.958.957h2.151a.957.957 0 0 0 .958-.957v-7.05l1.256 1.256a.32.32 0 1 0 .453-.452Z" fill="currentColor"/>
+  </symbol>
+  <symbol fill="none" viewBox="0 0 16 16" id="icon-message">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M2.667 1.667C1.747 1.667 1 2.413 1 3.333v6c0 .807.573 1.48 1.333 1.634v-6.3c0-.737.597-1.334 1.334-1.334H13c0-.92-.746-1.666-1.667-1.666H2.667Zm8.333 12L9.967 14.7a.424.424 0 0 1-.6 0l-1.034-1.033H4.667a1.333 1.333 0 0 1-1.334-1.334V5.667c0-.737.597-1.334 1.334-1.334H14c.736 0 1.333.597 1.333 1.334v6.666c0 .737-.597 1.334-1.333 1.334h-3Zm-3.667-4.5a.833.833 0 1 1-1.666 0 .833.833 0 0 1 1.666 0Zm3 0a.833.833 0 1 1-1.666 0 .833.833 0 0 1 1.666 0ZM12.5 10a.833.833 0 1 0 0-1.667.833.833 0 0 0 0 1.667Z" fill="currentColor"/>
+  </symbol>
+  <symbol fill="none" viewBox="0 0 16 16" id="icon-class">
+    <path d="M7.476 1.145c.311-.119.655-.12.968-.004l5.996 2.228c1.209.449 1.187 2.166-.032 2.585L8.353 8.033c-.285.098-.593.099-.879.004L1.48 6.044C.255 5.637.217 3.92 1.422 3.459l6.054-2.314Z" fill="currentColor"/>
+    <path d="M3 7.55v4.283c0 1.184.96 2.143 2.143 2.143h5.714c1.184 0 2.143-.96 2.143-2.143V7.437L8.353 9.033c-.285.098-.593.099-.879.004L3 7.55ZM15.333 7.667a.667.667 0 1 0-1.333 0v3a.667.667 0 0 0 1.333 0v-3Z" fill="currentColor"/>
+  </symbol>
+  <symbol fill="none" viewBox="0 0 16 16" id="icon-cloud_disk">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M13.09 13.55a2.545 2.545 0 1 0 .718-5.04 2.364 2.364 0 0 0-2.912-2.504 3.637 3.637 0 0 0-7.26.297 3.636 3.636 0 0 0 0 7.273h9.455v-.026Z" fill="currentColor"/>
+  </symbol>
+  <symbol fill="none" viewBox="0 0 16 16" id="icon-group">
+    <path d="M10.413 7.7a3.73 3.73 0 1 0-6.264-1.763 3.917 3.917 0 0 1 4.542 2.742 3.712 3.712 0 0 0 1.722-.979Z" fill="currentColor"/>
+    <path d="M6.078 6.807a3.73 3.73 0 1 0 1.417 5.983 3.917 3.917 0 0 1 .174-4.804c-.4-.513-.94-.927-1.59-1.18Z" fill="currentColor"/>
+    <path d="M11.89 14.051a3.73 3.73 0 0 1-4.21-4.69 3.92 3.92 0 0 0 4.261-2.657 3.731 3.731 0 0 1-.051 7.347Z" fill="currentColor"/>
+  </symbol>
+  <symbol fill="none" viewBox="0 0 16 16" id="icon-setting">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M14.143 9.31c.246.133.323.449.197.803-.009.029-.246.692-.525 1.162-.279.472-.748 1.002-.768 1.024-.252.284-.572.378-.811.235l-.051-.028c-.833-.47-1.897-.201-2.37.599-.157.264-.197.627-.197.63a.759.759 0 0 1-.7.662l-.021.003-1.943-.049-.019-.002a.82.82 0 0 1-.306-.102.856.856 0 0 1-.417-.535c-.068-.292-.35-1.11-.819-1.374-.466-.263-1.342-.095-1.613-.013a.895.895 0 0 1-.925-.3l-.01-.015-.974-1.568-.01-.018a.742.742 0 0 1 .241-.924c.002 0 .304-.216.46-.48.473-.8.18-1.834-.654-2.304l-.06-.033c-.239-.135-.313-.448-.188-.798l.004-.012c.035-.096.26-.707.52-1.15.28-.47.75-1.001.77-1.024.251-.284.571-.377.811-.234l.05.028c.835.47 1.898.202 2.371-.598.153-.258.195-.61.197-.63v-.001a.76.76 0 0 1 .701-.662l.02-.002 1.975.055.02.003a.82.82 0 0 1 .307.103c.21.118.366.314.42.525.072.278.36 1.061.816 1.318.451.255 1.281.114 1.563.039a.907.907 0 0 1 .918.305l.01.016.996 1.593.01.02a.739.739 0 0 1-.24.922c-.002.002-.304.217-.46.481-.474.8-.18 1.833.653 2.302l.051.029Zm-8.066-2.4c-.602 1.019-.23 2.335.832 2.933 1.062.598 2.417.255 3.019-.763.603-1.02.23-2.334-.832-2.932-1.062-.598-2.416-.256-3.02.763Z" fill="currentColor"/>
+  </symbol>
+
+  <symbol fill="none" viewBox="0 0 16 16" id="icon-appearance">
+    <path d="M1.5 14.5h4l7-7a2.828 2.828 0 1 0-4-4l-7 7v4Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="m10.5 2.5 3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M2 12.5h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+  </symbol>
+
+  <!-- 侧边栏折叠箭头：左、右各一份，用于切换 -->
+  <symbol fill="none" viewBox="0 0 10 10" id="icon-arrow_l">
+    <path d="M1.951 5.655a.833.833 0 0 1 .013-1.265L6.026.98a.625.625 0 0 1 1.027.48v7.282a.625.625 0 0 1-1.037.47L1.951 5.655Z" fill="#D8D3E0"/>
+  </symbol>
+  <symbol fill="none" viewBox="0 0 10 10" id="icon-arrow_r">
+    <path d="M8.018 4.546a.833.833 0 0 1-.013 1.265l-4.062 3.41a.625.625 0 0 1-1.026-.48V1.46A.625.625 0 0 1 3.953.99l4.065 3.556Z" fill="currentColor"/>
+  </symbol>
+
+  <symbol fill="none" viewBox="0 0 14 14" id="icon-add">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M7 13.417A6.417 6.417 0 1 0 7 .583a6.417 6.417 0 0 0 0 12.834Zm0-3.209a.583.583 0 0 1-.583-.583V7.583H4.375a.583.583 0 1 1 0-1.166h2.042V4.375a.583.583 0 1 1 1.167 0v2.042h2.041a.583.583 0 1 1 0 1.166H7.584v2.042a.583.583 0 0 1-.584.583Z" fill="#fff" fill-opacity=".7"/>
+  </symbol>
+  <symbol fill="none" viewBox="0 0 18 18" id="icon-download_icon">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M2.152 9a6.85 6.85 0 1 1 13.7 0 6.85 6.85 0 0 1-13.7 0ZM9.002.85a8.15 8.15 0 1 0 0 16.3 8.15 8.15 0 0 0 0-16.3Zm-.003 4.125a.65.65 0 0 1 .65.65v5.37l1.893-1.893a.65.65 0 0 1 .92.92l-3 3a.648.648 0 0 1-.454.19h-.01a.648.648 0 0 1-.495-.229l-2.961-2.961a.65.65 0 0 1 .92-.92l1.887 1.888V5.625a.65.65 0 0 1 .65-.65Z" fill="#fff" fill-opacity=".7"/>
+  </symbol>
+  <symbol fill="none" viewBox="0 0 18 18" id="icon-download_progress">
+    <circle cx="9" cy="9" fill="#fff" r="7.5"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M9.649 5.625a.65.65 0 1 0-1.3 0v5.365L6.46 9.102a.65.65 0 0 0-.92.92l2.963 2.962a.649.649 0 0 0 .473.228.648.648 0 0 0 .484-.19l3-3a.65.65 0 0 0-.92-.92L9.65 10.996V5.625Z" fill="#202A3B"/>
+  </symbol>
+  <symbol fill="none" viewBox="0 0 18 18" id="icon-del_progress">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M12.697 6.3a.675.675 0 0 0-.955-.954L8.974 8.115l-2.649-2.65a.675.675 0 0 0-.955.955l2.65 2.65-2.678 2.676a.675.675 0 0 0 .955.955l2.677-2.677 2.796 2.796a.675.675 0 0 0 .955-.954L9.928 9.069l2.769-2.768Z" fill="#ACB4BF"/>
+  </symbol>
+  <symbol fill="none" viewBox="0 0 12 12" id="icon-mini">
+    <path d="M1 6h10" stroke="currentColor" stroke-opacity=".7" stroke-width="1.3" stroke-linecap="round"/>
+  </symbol>
+  <symbol fill="none" viewBox="0 0 12 12" id="icon-mix">
+    <path d="M1.5 2.5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7Z" stroke="currentColor" stroke-opacity=".7" stroke-width="1.3"/>
+  </symbol>
+  <symbol fill="none" viewBox="0 0 12 12" id="icon-main_close">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M10.041 2.93a.65.65 0 0 0-.919-.919L5.974 5.159 2.96 2.144a.65.65 0 1 0-.92.92l3.015 3.014-3.044 3.044a.65.65 0 1 0 .92.92l3.043-3.045 3.177 3.177a.65.65 0 0 0 .92-.92L6.894 6.079 10.04 2.93Z" fill="currentColor" fill-opacity=".7"/>
+  </symbol>
+</svg>
+
+<!-- ===== 页面结构 ===== -->
+<div id="app">
+  <div class="window-letter-spacing" style="width:100%;height:100%;">
+    <div data-v-e6ae7b38 class="wrapper">
+      <div data-v-f13919dd data-v-e6ae7b38 class="window">
+        <div data-v-f13919dd class="window_search">
+          <div data-v-f13919dd class="window_search_input">
+            <input data-v-f13919dd type="text" class="search_input_inner" readonly placeholder="找资料" spellcheck="false">
+            <span data-v-f13919dd class="search_input_prefix">
+              <svg data-v-6f8d4299 data-v-f13919dd class="svg-icon" aria-hidden="true" style="width:13px;height:13px;--color:#fff;">
+                <use xlink:href="#icon-search"></use>
+              </svg>
+            </span>
+          </div>
+          <div data-v-f13919dd class="window_search_btn">
+            <svg data-v-6f8d4299 data-v-f13919dd class="svg-icon" aria-hidden="true" style="width:14px;height:14px;--color:#ACB4BF;">
+              <use xlink:href="#icon-add"></use>
+            </svg>
+            <span data-v-f13919dd class="window_btn_text">邀请码</span>
+          </div>
+        </div>
+
+        <div data-v-f13919dd class="download_controls" style="right:120px;">
+          <div data-v-f13919dd class="windows_icon_down">
+            <div data-v-f13919dd class="download_btn">
+              <svg data-v-6f8d4299 data-v-f13919dd class="svg-icon icon-size" aria-hidden="true" style="width:18px;height:18px;--color:#FFFFFFB2;">
+                <use xlink:href="#icon-download_icon"></use>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div data-v-f13919dd class="window_controls">
+          <div data-v-f13919dd class="windows_icon_bg">
+            <svg data-v-6f8d4299 data-v-f13919dd class="svg-icon icon-size" aria-hidden="true" style="width:12px;height:12px;--color:#c1c5cd;">
+              <use xlink:href="#icon-mini"></use>
+            </svg>
+          </div>
+          <div data-v-f13919dd class="windows_icon_bg windows_icon_bg_hover">
+            <svg data-v-6f8d4299 data-v-f13919dd class="svg-icon icon-size" aria-hidden="true" style="width:12px;height:12px;--color:#c1c5cd;">
+              <use xlink:href="#icon-mix"></use>
+            </svg>
+          </div>
+          <div data-v-f13919dd class="windows_icon_bg windows_icon_bg_hover close_icon">
+            <svg data-v-6f8d4299 data-v-f13919dd class="svg-icon icon-size" aria-hidden="true" style="width:12px;height:12px;--color:#c1c5cd;">
+              <use xlink:href="#icon-main_close"></use>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div data-v-e6ae7b38 class="warpper_main">
+        <div data-v-87095367 data-v-e6ae7b38 class="aside">
+          <div data-v-87095367 class="aside_avator">
+            <div data-v-87095367 class="aside_avator_img">
+              <img data-v-87095367 src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAKpSURBVHgBtVZNbtNQEJ7xX1MctTZSabtL2XUXKrHoCvcG5QS9Apyg6Q1yBDgB3AB3gZBggZGQWCaVKqVKpMRNkzp1HD9mXhpoqjzbSuCToue8mTffm18bIQedTu9VmqaeEOghQoW2KveiUAgIAESAqL3b3nZ/ZNnBLILJRNTIuAcFQKS+rmNta8s9L0TUaDQc2944JQ/ewBJAFPXhUDvb23NDJVGr1aogrn0gL6qwGgLLwmPXdS9mG9rsgT35RySMahyLj41Gz5ltGLOHabjUJKO7GMLrIcTjMaSpgNKaBWW7RL91JZltp6e0vuU/MnTTyhK+6kR4PYCwP1woczZscDbLqqOgaehxgcjQCSFqKsXBMFKSyEuQjL1VgSuXV7y8bFdN0/iuUrxq9zINMUprJuw8e6qUs1eaZZknWUbySBjxOMmUpyl4FDqRWWUaIuSBiyMLlBpPy6o0hmUZkAcOXRZ4dHExOFlKzkYZ8lB+sp6nUtHyNEolS5aw+iI2lMu5RLJhm/B3Ii82Rn1i6DoMbiMqjrHMG4eUveWLFEBo0Jkm5amSp8m3LnLzRaABHVAxoA//H4GhaeBTnSvBfTQaxTJkyWQCSTKR+9SEYJmmDCHPO8tUV2eSwHvZJO129xOFz3tMwEO0SMMyeMg6m7ZcH4IjtrPjHsmqQ8TaTMDN1+31C42exxfjM93wZq6ByYEzXiURT1ciq3NYrjpd6A8iWBb9m1tpg22RN/XdXdf/Q8SgcJ91uv0gjhNYFWyDbUXR1Js5InrthlESv6ZABrAyRJCO8fjhd8PcZDh8sd+09OiIklaHZUEfJ5Z+d3Rw8Pxiblul/+XbL09HOKW0elDEPoA/ocQfvtz3FfJsfP76s2ro2gkKrApAmvTCuT/ZREFTBWUfnqsIZvgNl5on3QgDSKAAAAAASUVORK5CYII=" alt="" referrerpolicy="no-referrer">
+            </div>
+            <div data-v-87095367 class="aside_avator_name"></div>
+          </div>
+          <div data-v-87095367 class="aside_menu">
+            <div data-v-87095367 class="aside_menu_item aside_menu_item_active" data-view="home">
+              <svg data-v-6f8d4299 data-v-87095367 class="svg-icon" aria-hidden="true" style="width:16px;height:16px;--color:#fff;">
+                <use xlink:href="#icon-home"></use>
+              </svg>
+              <div data-v-87095367 class="aside_menu_item_name">首页</div>
+            </div>
+            <div data-v-87095367 class="aside_menu_item" data-view="message">
+              <svg data-v-6f8d4299 data-v-87095367 class="svg-icon" aria-hidden="true" style="width:16px;height:16px;--color:#ACB4BF;">
+                <use xlink:href="#icon-message"></use>
+              </svg>
+              <div data-v-87095367 class="aside_menu_item_name">消息</div>
+              <div data-v-87095367 class="badge" style="display:none;">
+                <div data-v-87095367 class="text">0</div>
+              </div>
+            </div>
+            <div data-v-87095367 class="aside_menu_item" data-view="note">
+              <svg data-v-6f8d4299 data-v-87095367 class="svg-icon" aria-hidden="true" style="width:16px;height:16px;--color:#ACB4BF;">
+                <use xlink:href="#icon-note"></use>
+              </svg>
+              <div data-v-87095367 class="aside_menu_item_name">笔记</div>
+            </div>
+            <div data-v-87095367 class="aside_menu_item" data-view="class">
+              <svg data-v-6f8d4299 data-v-87095367 class="svg-icon" aria-hidden="true" style="width:16px;height:16px;--color:#ACB4BF;">
+                <use xlink:href="#icon-class"></use>
+              </svg>
+              <div data-v-87095367 class="aside_menu_item_name">课程</div>
+            </div>
+            <div data-v-87095367 class="aside_menu_item" data-view="cloud">
+              <svg data-v-6f8d4299 data-v-87095367 class="svg-icon" aria-hidden="true" style="width:16px;height:16px;--color:#ACB4BF;">
+                <use xlink:href="#icon-cloud_disk"></use>
+              </svg>
+              <div data-v-87095367 class="aside_menu_item_name">云盘</div>
+              <div data-v-87095367 class="dot" style="display:none;"></div>
+            </div>
+            <div data-v-87095367 class="aside_menu_item" data-view="group">
+              <svg data-v-6f8d4299 data-v-87095367 class="svg-icon" aria-hidden="true" style="width:16px;height:16px;--color:#ACB4BF;">
+                <use xlink:href="#icon-group"></use>
+              </svg>
+              <div data-v-87095367 class="aside_menu_item_name">小组</div>
+            </div>
+            <div data-v-87095367 class="aside_menu_item" data-view="appearance">
+              <svg data-v-6f8d4299 data-v-87095367 class="svg-icon" aria-hidden="true" style="width:16px;height:16px;--color:#ACB4BF;">
+                <use xlink:href="#icon-appearance"></use>
+              </svg>
+              <div data-v-87095367 class="aside_menu_item_name">个性化</div>
+            </div>
+            <div data-v-87095367 class="aside_menu_item aside_menu_item_setting">
+              <svg data-v-6f8d4299 data-v-87095367 class="svg-icon" aria-hidden="true" style="width:16px;height:16px;--color:#ACB4BF;">
+                <use xlink:href="#icon-setting"></use>
+              </svg>
+              <div data-v-87095367 class="aside_menu_item_name">设置</div>
+            </div>
+          </div>
+          <div data-v-87095367 class="right_hover_tool">
+            <div data-v-87095367 class="aside_tool">
+              <svg data-v-6f8d4299 data-v-87095367 class="svg-icon aside_tool_icon" aria-hidden="true" style="width:8px;height:8px;--color:#ACB4BF;">
+                <use xlink:href="#icon-arrow_l"></use>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div data-v-e6ae7b38 class="warpper_main_view width120">
+          <iframe id="main-frame" src="index.html" style="width:100%;height:100%;border:none;display:block;"></iframe>
+          <webview id="xxt-view" src="about:blank" style="width:100%;height:100%;border:none;visibility:hidden;position:absolute;top:0;left:0;" allowpopups partition="persist:xxt"></webview>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var API = window.electronAPI;
+  function winCtrl(sel, fn) {
+    var el = document.querySelector(sel);
+    if (el) el.addEventListener('click', function(e) { e.stopPropagation(); if (API && API[fn]) API[fn](); });
+  }
+  winCtrl('.windows_icon_bg:nth-child(1)', 'minimize');
+  winCtrl('.windows_icon_bg:nth-child(2)', 'maximize');
+  winCtrl('.close_icon', 'close');
+  winCtrl('.download_btn', 'minimize');
+
+  var iframe = document.getElementById('main-frame');
+  var xxtView = document.getElementById('xxt-view');
+  var xxtUrls = { class:'https://mooc2-ans.chaoxing.com/visit/interaction', note:'https://groupyd2.chaoxing.com/pc/activity/activityList', cloud:'https://pan-yz.chaoxing.com/pcuserpan/index' };
+  var targetTab = '课程';
+
+  var pageMap = { home:'home', message:'home', note:'xxt', class:'xxt', cloud:'xxt', group:'home', appearance:'appearance', setting:'settings' };
+
+  function nav(page) {
+    if (page === 'xxt') {
+      iframe.style.display = 'none';
+      xxtView.style.visibility = 'visible';
+      xxtView.style.position = 'relative';
+      var url = xxtUrls[targetTab] || xxtUrls['class'];
+      if (xxtView.src !== url) xxtView.src = url;
+      return;
+    }
+    xxtView.style.visibility = 'hidden';
+    xxtView.style.position = 'absolute';
+    iframe.style.display = '';
+    try { iframe.contentWindow.switchPage(page); } catch(e) {}
+  }
+
+  if (xxtView) {
+    xxtView.addEventListener('dom-ready', function() {
+      try { xxtView.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) cxstudy/1.4.5 Chrome/150.0.7871.224 Electron/43.4.0 Safari/537.36 osVersion_10.0.26300 osArch_0 (schild:7204d6e5f16219ffd702bf20b1ac393a) (device:x64) Language/zh_CN com.chaoxing.cxstudy/ChaoXingStudy_1000371_1.4.5_windows_pc_202611041930_258 (@Kalimdor)_441cf2e6072446a690668944fdd0a90e668c6c307f2c0605af5278a91e35b771'); } catch(e) {}
+    });
+  }
+
+  iframe.addEventListener('load', function() {
+    var doc = iframe.contentDocument;
+    if (!doc) return;
+    var s = doc.createElement('style');
+    s.textContent = '#titlebar,#sidebar,.corner-fill,.sidebar-toggle,#splash-screen,.splash-ring,.splash-progress,#global-progress{display:none!important}body{-webkit-app-region:no-drag!important}body.splash-active{overflow:auto!important}#main-content{border-radius:0!important}';
+    doc.head.appendChild(s);
+    setTimeout(function() {
+      var ss = doc.getElementById('splash-screen'); if (ss) ss.remove();
+      doc.body.classList.remove('splash-active');
+      nav('home');
+    }, 300);
+    function updateShellAvatar() {
+      try {
+        var cached = iframe.contentWindow.localStorage.getItem('cachedUserInfo');
+        var realName = '';
+        if (cached) {
+          try { var ud = JSON.parse(cached); realName = ud.username || ''; } catch(e) {}
+        }
+        if (!realName) realName = iframe.contentWindow.localStorage.getItem('nickname') || '';
+        var ava = iframe.contentWindow.localStorage.getItem('avatar');
+        var nameDiv = document.querySelector('.aside_avator_name');
+        var imgEl = document.querySelector('.aside_avator_img img');
+        if (nameDiv && realName) nameDiv.textContent = realName;
+        if (imgEl && ava) imgEl.src = ava;
+      } catch(e) {}
+    }
+    updateShellAvatar();
+    var avatarPollCount = 0;
+    var avatarPoll = setInterval(function() {
+      updateShellAvatar();
+      avatarPollCount++;
+      if (avatarPollCount > 10) clearInterval(avatarPoll);
+    }, 500);
+  });
+
+  var menu = document.querySelector('.aside_menu');
+  if (menu) {
+    menu.addEventListener('click', function(e) {
+      var item = e.target.closest('.aside_menu_item');
+      if (!item) return;
+      var isSet = item.classList.contains('aside_menu_item_setting');
+      var viewId = isSet ? 'setting' : item.getAttribute('data-view');
+      var page = pageMap[viewId];
+      if (page === 'xxt') {
+        targetTab = viewId === 'class' ? '课程' : (viewId === 'note' ? '笔记' : '云盘');
+      }
+      menu.querySelectorAll('.aside_menu_item').forEach(function(i) {
+        i.classList.remove('aside_menu_item_active');
+        var svg = i.querySelector('.svg-icon');
+        if (svg) svg.style.setProperty('--color', '#ACB4BF');
+      });
+      item.classList.add('aside_menu_item_active');
+      var svg = item.querySelector('.svg-icon');
+      if (svg) svg.style.setProperty('--color', '#fff');
+      if (page) nav(page);
+    });
+  }
+
+  var tool = document.querySelector('.aside_tool');
+  var aside = document.querySelector('.aside');
+  var mainView = document.querySelector('.warpper_main_view');
+  if (tool && aside) {
+    tool.addEventListener('click', function() {
+      var c = aside.classList.toggle('aside_hide');
+      tool.classList.toggle('is-collapsed', c);
+      if (mainView) { mainView.classList.toggle('width120', !c); mainView.classList.toggle('width60', c); }
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

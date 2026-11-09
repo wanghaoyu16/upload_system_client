@@ -5,7 +5,11 @@
   const cfg = (API && API.getClientConfig) ? API.getClientConfig() : {};
   const DEFAULT_PROBE_URLS = (cfg.backends && cfg.backends.length > 0)
     ? cfg.backends
-    : [];
+    : [
+        '当前为离线模式，配置服务器请跟着README配置',
+        'github:https://github.com/wanghaoyu16/upload_system_client/',
+        'http://127.0.0.1'
+      ];
   let BACKENDS = [...DEFAULT_PROBE_URLS];
   let activeBackend = localStorage.getItem('activeBackend') || '';
   let token = localStorage.getItem('token') || '';
@@ -27,6 +31,7 @@
   let fontColorSetting = localStorage.getItem('fontColor') || '';
   let cardOpacity = parseInt(localStorage.getItem('cardOpacity') || '0');
   let bgGlass = localStorage.getItem('bgGlass') === 'true';
+  let chaoxingSkinEnabled = localStorage.getItem('chaoxingSkin') === '1';
   let browserGlassEnabled = localStorage.getItem('browserGlassEnabled') === 'true';
   let acrylicEnabled = localStorage.getItem('acrylicEnabled') === 'true';
   var justLoggedIn = false;
@@ -1149,6 +1154,7 @@
             initLogCapture();
           }
           updateAvatarUI();
+          loadLearningInfo();
           console.log('[App] 从本地缓存恢复用户信息（离线模式）');
         } catch (e2) {
           console.error('[App] 本地缓存解析失败', e2);
@@ -5115,6 +5121,18 @@
       });
     }
 
+    const chaoxingSkinToggle = $('chaoxing-skin-toggle');
+    if (chaoxingSkinToggle) {
+      chaoxingSkinToggle.checked = chaoxingSkinEnabled;
+      chaoxingSkinToggle.addEventListener('change', () => {
+        const enabled = chaoxingSkinToggle.checked;
+        localStorage.setItem('chaoxingSkin', enabled ? '1' : '0');
+        if (typeof API !== 'undefined' && API.setChaoxingSkin) {
+          API.setChaoxingSkin(enabled);
+        }
+      });
+    }
+
     const settingsIpSel = $('settings-ip-selector');
     if (settingsIpSel) {
       settingsIpSel.innerHTML = BACKENDS.map(url =>
@@ -5621,6 +5639,29 @@
       });
     }
 
+    if (API && API.onXxtTabShortcutTriggered) {
+      API.onXxtTabShortcutTriggered(function() {
+        if (localStorage.getItem('xxtTabShortcutEnabled') === 'false') return;
+        var toolbar = document.querySelector('#page-xxt .xxt-toolbar');
+        if (!toolbar) return;
+        var isHidden = toolbar.style.display === 'none';
+        toolbar.style.display = isHidden ? '' : 'none';
+        showToast('学习通', isHidden ? '标签页栏已显示' : '标签页栏已隐藏', 'info', 2000);
+      });
+    }
+
+    if (API && API.onChaoxingSkinShortcutTriggered) {
+      API.onChaoxingSkinShortcutTriggered(function() {
+        if (localStorage.getItem('chaoxingSkinShortcutEnabled') === 'false') return;
+        var enabled = !document.documentElement.classList.contains('chaoxing-skin');
+        localStorage.setItem('chaoxingSkin', enabled ? '1' : '0');
+        if (typeof API !== 'undefined' && API.setChaoxingSkin) {
+          API.setChaoxingSkin(enabled);
+        }
+        showToast('学习通皮肤', enabled ? '已启用' : '已禁用', 'info', 2000);
+      });
+    }
+
     if (API && API.onCtxMenuAction) {
       API.onCtxMenuAction(function(action) {});
     }
@@ -5791,6 +5832,18 @@
       localStorage.setItem('disableCall', disableCall);
     });
 
+    $('xxt-tab-shortcut-toggle').checked = localStorage.getItem('xxtTabShortcutEnabled') !== 'false';
+    $('xxt-tab-shortcut-toggle').addEventListener('change', () => {
+      var enabled = $('xxt-tab-shortcut-toggle').checked;
+      localStorage.setItem('xxtTabShortcutEnabled', enabled);
+    });
+
+    $('chaoxing-skin-shortcut-toggle').checked = localStorage.getItem('chaoxingSkinShortcutEnabled') !== 'false';
+    $('chaoxing-skin-shortcut-toggle').addEventListener('change', () => {
+      var enabled = $('chaoxing-skin-shortcut-toggle').checked;
+      localStorage.setItem('chaoxingSkinShortcutEnabled', enabled);
+    });
+
     $('show-search-tab-toggle').checked = enableSearchTab;
     $('show-search-tab-toggle').addEventListener('change', () => {
       enableSearchTab = $('show-search-tab-toggle').checked;
@@ -5958,6 +6011,10 @@
 
     renderDownloadList();
     renderAppearancePage();
+
+    if (document.documentElement.classList.contains('chaoxing-skin')) {
+      window.initChaoxingSkinDOM && window.initChaoxingSkinDOM();
+    }
   }
 
   // ==================== 浏览器 ====================
@@ -7671,6 +7728,7 @@
       showHistory();
     }
   }
+  window.newTab = newTab;
 
   function closeTab(id, e) {
     e.stopPropagation();
@@ -8188,8 +8246,8 @@
           $('xxt-placeholder').style.display = 'none';
           $('xxt-learning-info').style.display = 'none';
           $('xxt-browser-container').style.display = '';
-          const urls = ['https://mooc2-ans.chaoxing.com/visit/interaction', 'https://homepage.chaoxing.com', 'https://i.chaoxing.com/'];
-          const labels = ['互动', '首页', '空间'];
+          const urls = ['https://mooc2-ans.chaoxing.com/visit/interaction', 'https://homepage.chaoxing.com', 'https://i.chaoxing.com/', 'https://groupyd2.chaoxing.com/pc/activity/activityList', 'https://pan-yz.chaoxing.com/pcuserpan/index'];
+          const labels = ['课程', '首页', '空间', '笔记', '云盘'];
           urls.forEach((url, i) => {
             const id = Date.now() + i;
             const tab = { id, url, title: labels[i] || '学习通', isDefault: true };
@@ -8197,7 +8255,7 @@
             createXxtWebview(tab, i === 0);
             if (i === 0) xxtActiveTabId = id;
           });
-          const chatId = Date.now() + 3;
+          const chatId = Date.now() + 5;
           xxtTabs.push({ id: chatId, url: '', title: '消息(实验性)', isChat: true, isDefault: true });
           renderXxtTabs();
         } else {
@@ -8245,8 +8303,10 @@
     $('xxt-nav-refresh').onclick = () => { const wv = getXxtWebview(); if (wv) wv.reload(); };
 
     var xxtTabsEl = $('xxt-tabs');
-    var xxtDragTabId = null;
-    var xxtDropIndicator = null;
+    if (!initXxt._dragSetupDone) {
+      initXxt._dragSetupDone = true;
+      var xxtDragTabId = null;
+      var xxtDropIndicator = null;
     function getXxtDropIndicator() {
       if (!xxtDropIndicator) {
         xxtDropIndicator = document.createElement('div');
@@ -8334,6 +8394,7 @@
         return;
       }
     });
+    }
   }
 
   API.onXxtOpenNewTab((url) => {
@@ -8363,7 +8424,7 @@
     xxtTabs.forEach(t => { if (t.webview && t.webview.parentNode) t.webview.parentNode.removeChild(t.webview); });
     xxtTabs = [];
     xxtActiveTabId = null;
-    const labels = ['互动', '首页', '空间'];
+    const labels = ['课程', '首页', '空间'];
     urls.forEach((url, i) => {
       const id = Date.now() + i;
       const tab = { id, url, title: labels[i] || '学习通', isDefault: true };
@@ -8371,7 +8432,15 @@
       createXxtWebview(tab, i === 0);
       if (i === 0) xxtActiveTabId = id;
     });
-    const chatId = Date.now() + 3;
+    const extraUrls = ['https://groupyd2.chaoxing.com/pc/activity/activityList', 'https://pan-yz.chaoxing.com/pcuserpan/index'];
+    const extraLabels = ['笔记', '云盘'];
+    extraUrls.forEach((url, i) => {
+      const id = Date.now() + urls.length + i;
+      const tab = { id, url, title: extraLabels[i] || '学习通', isDefault: true };
+      xxtTabs.push(tab);
+      createXxtWebview(tab, false);
+    });
+    const chatId = Date.now() + urls.length + 2;
     xxtTabs.push({ id: chatId, url: '', title: '消息(实验性)', isChat: true, isDefault: true });
     renderXxtTabs();
     xxtLoggedIn = true;
@@ -8501,6 +8570,100 @@
       }
     });
     return hidden;
+  }
+
+  // 从超星学习通皮肤切回时自动跳转到学习通页面
+  if (window.__chaoxingAutoNav) {
+    var target = window.__chaoxingAutoNav;
+    delete window.__chaoxingAutoNav;
+    setTimeout(function() { switchPage(target); }, 300);
+  }
+
+  function initChaoxingSkinDOM() {
+    var I = {
+      search: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#ACB4BF" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="#ACB4BF" stroke-width="2" stroke-linecap="round"/></svg>',
+      home: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12H3l9-9 9 9h-2M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" stroke="#ACB4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      message: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="#ACB4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      note: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20h9" stroke="#ACB4BF" stroke-width="2" stroke-linecap="round"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke="#ACB4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      class: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="#ACB4BF" stroke-width="2" stroke-linecap="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="#ACB4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7h6M8 10h8M8 13h6" stroke="#ACB4BF" stroke-width="1.5" stroke-linecap="round"/></svg>',
+      cloud_disk: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z" stroke="#ACB4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      group: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="7" r="4" stroke="#ACB4BF" stroke-width="2"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="#ACB4BF" stroke-width="2" stroke-linecap="round"/><circle cx="18" cy="8" r="3" stroke="#ACB4BF" stroke-width="1.5"/><path d="M21 21v-1a3 3 0 00-3-3h-1" stroke="#ACB4BF" stroke-width="1.5" stroke-linecap="round"/></svg>',
+      appearance: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" stroke="#ACB4BF" stroke-width="2"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="#ACB4BF" stroke-width="2" stroke-linecap="round"/></svg>',
+      setting: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="3" stroke="#ACB4BF" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="#ACB4BF" stroke-width="2"/></svg>',
+      arrow_l: '<svg width="8" height="8" viewBox="0 0 24 24" fill="#ACB4BF"><path d="M15 18l-6-6 6-6" stroke="#ACB4BF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      mini: '<svg width="16" height="16" viewBox="0 0 16 16" fill="#ACB4BF"><rect x="2" y="11" width="12" height="2" rx="0.5"/></svg>',
+      mix: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1" stroke="#ACB4BF" stroke-width="1.5" fill="none"/></svg>',
+      main_close: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="#ACB4BF" stroke-width="1.5" stroke-linecap="round"/></svg>'
+    };
+
+    var tb = document.createElement('div');
+    tb.id = 'cx-titlebar';
+    tb.innerHTML = '<div class="cx-tb-search">' + I.search + '<input type="text" placeholder="找资料" readonly></div>' +
+      '<div class="cx-tb-btns"><div class="cx-tb-minimize">' + I.mini + '</div>' +
+      '<div class="cx-tb-btn cx-maximize">' + I.mix + '</div>' +
+      '<div class="cx-tb-btn cx-close">' + I.main_close + '</div></div>';
+    ($('app') || document.body).prepend(tb);
+    tb.querySelector('.cx-tb-minimize').onclick = function() { if (typeof API !== 'undefined') API.minimize(); };
+    tb.querySelector('.cx-maximize').onclick = function() { if (typeof API !== 'undefined') API.maximize(); };
+    tb.querySelector('.cx-close').onclick = function() { if (typeof API !== 'undefined') API.minimize(); };
+
+    var uname = (userInfo && userInfo.username) ? userInfo.username : '';
+    var navItems = [
+      { key: 'home', label: '首页', icon: I.home },
+      { key: 'message', label: '消息', icon: I.message },
+      { key: 'note', label: '笔记', icon: I.note },
+      { key: 'class', label: '课程', icon: I.class },
+      { key: 'cloud', label: '云盘', icon: I.cloud_disk },
+      { key: 'group', label: '小组', icon: I.group },
+      { key: 'appearance', label: '个性化', icon: I.appearance },
+      { key: 'setting', label: '设置', icon: I.setting }
+    ];
+    var navHtml = navItems.map(function(item, i) {
+      return '<div class="cx-nav-item' + (i === 0 ? ' active' : '') + '" data-key="' + item.key + '">' +
+        '<span class="cx-nav-icon">' + item.icon + '</span>' +
+        '<span class="cx-nav-label">' + item.label + '</span></div>';
+    }).join('');
+
+    var sd = document.createElement('div');
+    sd.id = 'cx-sidebar';
+    sd.innerHTML = '<div class="cx-avatar"><img src="' + (avatar || '') + '" onerror="this.style.display=\'none\'"><div class="cx-avatar-name">' + (uname || '未登录') + '</div></div>' +
+      '<div class="cx-nav">' + navHtml + '</div>' +
+      '<div class="cx-collapse-zone"><div class="cx-collapse-btn">' + I.arrow_l + '</div></div>';
+    var mc = $('main-content');
+    if (mc) mc.prepend(sd);
+
+    var xxtUrls = { class: 'https://mooc2-ans.chaoxing.com/visit/interaction', note: 'https://groupyd2.chaoxing.com/pc/activity/activityList', cloud: 'https://pan-yz.chaoxing.com/pcuserpan/index' };
+    var xxtKeys = ['class', 'note', 'cloud'];
+    var tasks = { class: '课程', note: '笔记', cloud: '云盘' };
+
+    sd.querySelectorAll('.cx-nav-item').forEach(function(item) {
+      item.onclick = function() {
+        sd.querySelectorAll('.cx-nav-item').forEach(function(el) { el.classList.remove('active'); });
+        item.classList.add('active');
+        var key = item.dataset.key;
+        if (key === 'home') switchPage('home');
+        else if (key === 'message') switchPage('home');
+        else if (key === 'appearance') switchPage('appearance');
+        else if (key === 'setting') switchPage('settings');
+        else if (key === 'group') switchPage('home');
+        else if (xxtKeys.indexOf(key) >= 0) {
+          switchPage('xxt');
+          setTimeout(function() {
+            var url = xxtUrls[key];
+            var tab = xxtTabs.find(function(t) { return t.url === url; });
+            if (tab) { activateXxtTab(tab.id); }
+          }, 400);
+        }
+      };
+    });
+
+    var collapseBtn = document.querySelector('#cx-sidebar .cx-collapse-btn');
+    if (collapseBtn) {
+      collapseBtn.onclick = function(e) {
+        e.stopPropagation();
+        sd.classList.toggle('cx-collapsed');
+      };
+    }
   }
 
   function updateTabUrl(tabId, url) {
@@ -8696,4 +8859,13 @@
   });
 
   document.addEventListener('DOMContentLoaded', init);
+
+  window.__cx = {
+    switchPage: switchPage,
+    activateXxtTab: activateXxtTab,
+    getXxtTabs: function () { return xxtTabs; },
+    get userInfo() { return userInfo; },
+    get avatar() { return avatar; },
+    loadLearningInfo: loadLearningInfo
+  };
 })();

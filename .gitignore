@@ -34,6 +34,7 @@ __pycache__/
 server_python/config.json
 server_python/data/
 server_python/file/
+app_github_old/
 
 # 敏感配置文件（复制 config.example.json 为 config.json 后填写真实值）
 server_python/config.json

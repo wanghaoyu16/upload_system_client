@@ -1639,6 +1639,15 @@ function createMiniViewer(sourceModel, customW, customH, customCamZoom) {
   miniContainer.style.width = w + 'px';
   miniContainer.style.height = h + 'px';
 
+  if (sourceModel && window._mmdAI && window._mmdAI.loadAIConfig) {
+    var _modelId = (activeAppliedModelData && activeAppliedModelData.id);
+    if (_modelId) {
+      window._mmdAI.loadAIConfig(_modelId).then(function(cfg) {
+        if (miniContainer) miniContainer.style.opacity = (cfg.miniOpacity !== undefined ? cfg.miniOpacity : 1.0);
+      });
+    }
+  }
+
   let drg = false, sx, sy, sl, st;
   miniContainer.addEventListener('mousedown', (e) => {
     if (e.target.classList.contains('mmd-mini-close')) return;
@@ -3129,6 +3138,11 @@ async function createImageMiniViewer(project) {
     aiMiniViewer.innerHTML = '<button class="mmdai-mini-close">&times;</button><img src="' + b64 + '" style="width:100%;height:100%;object-fit:contain;" draggable="false">';
     aiMiniViewer.style.cssText = 'position:fixed;z-index:100000;right:16px;bottom:16px;width:' + w + 'px;height:' + h + 'px;';
     document.body.appendChild(aiMiniViewer);
+    if (window._mmdAI && window._mmdAI.loadAIConfig) {
+      window._mmdAI.loadAIConfig(project.id, true).then(function(cfg) {
+        if (aiMiniViewer) aiMiniViewer.style.opacity = (cfg.miniOpacity !== undefined ? cfg.miniOpacity : 1.0);
+      });
+    }
     var img = aiMiniViewer.querySelector('img');
     if (img) img.addEventListener('dragstart', function(e) { e.preventDefault(); });
     aiMiniViewer.querySelector('.mmdai-mini-close').addEventListener('click', disposeImageMiniViewer);
