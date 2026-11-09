@@ -117,7 +117,7 @@
     var ctrlBtns = tb.querySelectorAll('.cx-tb-btns .cx-tb-btn');
     if (ctrlBtns[0]) ctrlBtns[0].onclick = function () { window.electronAPI && window.electronAPI.minimize(); };
     if (ctrlBtns[1]) ctrlBtns[1].onclick = function () { window.electronAPI && window.electronAPI.maximize(); };
-    if (ctrlBtns[2]) ctrlBtns[2].onclick = function () { window.electronAPI && window.electronAPI.minimize(); };
+    if (ctrlBtns[2]) ctrlBtns[2].onclick = function () { window.electronAPI && window.electronAPI.close(); };
 
     var searchInput = tb.querySelector('.cx-search-input');
     if (searchInput) searchInput.onclick = function () { cx.switchPage('search'); };
