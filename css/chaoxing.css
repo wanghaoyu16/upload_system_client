@@ -463,3 +463,9 @@ svg { display: inline-block !important; }
 .chaoxing-skin #sidebar.cx-collapsed .cx-collapse-btn svg {
   transform: rotate(180deg);
 }
+
+/* 网络覆盖层（无法连接服务器）置于侧边栏之下，避免遮挡学习通侧边栏 */
+.chaoxing-skin #network-overlay {
+  top: 44px;
+  z-index: 9;
+}
