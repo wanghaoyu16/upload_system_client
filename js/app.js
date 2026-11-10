@@ -5894,6 +5894,14 @@
       applySidebarVisibility();
     });
 
+    $('chaoxing-appearance-tab-toggle').checked = localStorage.getItem('chaoxingAppearanceTab') !== 'false';
+    $('chaoxing-appearance-tab-toggle').addEventListener('change', () => {
+      var enabled = $('chaoxing-appearance-tab-toggle').checked;
+      localStorage.setItem('chaoxingAppearanceTab', enabled);
+      var item = document.querySelector('#sidebar .cx-nav-item[data-key="appearance"]');
+      if (item) item.style.display = enabled ? '' : 'none';
+    });
+
     $('limit-min-size-toggle').checked = limitMinSize;
     if (!limitMinSize) {
       $('min-height-item').style.display = '';

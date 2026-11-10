@@ -139,7 +139,8 @@
     ];
 
     var navHtml = nav.map(function (item, i) {
-      return '<div class="cx-nav-item' + (i === 0 ? ' active' : '') + (item.key === 'setting' ? ' cx-nav-item-setting' : '') + '" data-key="' + item.key + '">' +
+      var hiddenStyle = (item.key === 'appearance' && localStorage.getItem('chaoxingAppearanceTab') === 'false') ? ' style="display:none;"' : '';
+      return '<div class="cx-nav-item' + (i === 0 ? ' active' : '') + (item.key === 'setting' ? ' cx-nav-item-setting' : '') + '" data-key="' + item.key + '"' + hiddenStyle + '>' +
         '<span class="cx-nav-icon">' + spriteIcon(item.ico) + '</span>' +
         '<span class="cx-nav-label">' + item.label + '</span></div>';
     }).join('');
