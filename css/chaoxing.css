@@ -469,3 +469,91 @@ svg { display: inline-block !important; }
   top: 44px;
   z-index: 9;
 }
+
+/* 学习通皮肤：隐藏退出登录按钮 */
+.chaoxing-skin #xxt-logout-btn {
+  display: none !important;
+}
+
+/* 学习通皮肤：隐藏刷新/前进/后退按钮（功能已移入右键菜单） */
+.chaoxing-skin #xxt-nav-back,
+.chaoxing-skin #xxt-nav-forward,
+.chaoxing-skin #xxt-nav-refresh {
+  display: none !important;
+}
+
+/* 学习通皮肤：标签栏与标签页配色，标签页无内边距 */
+.chaoxing-skin .xxt-toolbar {
+  min-height: 40px;
+  padding: 0;
+  background: #f5f7fa;
+  align-items: stretch;
+  border-bottom: none;
+}
+.chaoxing-skin .xxt-tabs {
+  align-items: stretch;
+  margin-left: 0;
+  gap: 0;
+}
+.chaoxing-skin .xxt-tab {
+  padding: 0;
+  background: #f5f7fa;
+  align-self: stretch;
+  border-radius: 6px 6px 0 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  font-size: 13px;
+}
+.chaoxing-skin .xxt-tab:hover {
+  background: #f5f7fa;
+}
+.chaoxing-skin .xxt-tab.active {
+  background: #ffffff;
+  color: #000000;
+  font-weight: 400;
+  border-radius: 6px 6px 0 0;
+  border-bottom: 1px solid #ffffff;
+  position: relative;
+  z-index: 1;
+  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.06), 2px 0 4px rgba(0, 0, 0, 0.06);
+}
+/* 选中标签左右两侧不显示分隔竖线 */
+.chaoxing-skin .xxt-tab.active::before,
+.chaoxing-skin .xxt-tab.active + .xxt-tab::before {
+  display: none;
+}
+
+/* 学习通皮肤：隐藏标签页网页图标 */
+.chaoxing-skin .xxt-tab .browser-tab-icon,
+.chaoxing-skin .xxt-tab .browser-tab-icon-default {
+  display: none !important;
+}
+
+/* 学习通皮肤：标签页之间分隔栏（居中短竖线） */
+.chaoxing-skin .xxt-tab + .xxt-tab {
+  position: relative;
+  border-left: none;
+}
+.chaoxing-skin .xxt-tab + .xxt-tab::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 14px;
+  background: #dcdfe6;
+}
+
+/* 学习通皮肤：标签页字体略微右偏 */
+.chaoxing-skin .xxt-tab .tab-title {
+  padding-left: 12px;
+}
+
+/* 学习通皮肤：选中标签关闭按钮始终显示、调大并留右侧间距 */
+.chaoxing-skin .xxt-tab.active .tab-close {
+  opacity: 0.6;
+  width: 20px;
+  height: 20px;
+  font-size: 18px;
+  margin-right: 8px;
+}

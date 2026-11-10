@@ -5675,11 +5675,12 @@
       var menuEl = document.getElementById('app-context-menu');
       if (menuEl) menuEl.remove();
       var wv = optWv || (typeof getActiveWebview === 'function' ? getActiveWebview() : null);
+      var navWv = (currentPage === 'xxt' && typeof getXxtWebview === 'function') ? getXxtWebview() : wv;
       var canBack = $('btn-back') ? !$('btn-back').disabled : false;
       var canForward = $('btn-forward') ? !$('btn-forward').disabled : false;
-      if (wv) {
-        try { canBack = wv.canGoBack(); } catch(e) { canBack = !$('btn-back').disabled; }
-        try { canForward = wv.canGoForward(); } catch(e) { canForward = !$('btn-forward').disabled; }
+      if (navWv) {
+        try { canBack = navWv.canGoBack(); } catch(e) { canBack = !$('btn-back').disabled; }
+        try { canForward = navWv.canGoForward(); } catch(e) { canForward = !$('btn-forward').disabled; }
       }
       var selText = ctxData && ctxData.selectionText ? ctxData.selectionText : '';
       var canPaste = ctxData && ctxData.editFlags && ctxData.editFlags.canPaste;
@@ -5689,9 +5690,9 @@
       menuEl.id = 'app-context-menu';
       menuEl.className = 'context-menu ctx-appear';
       var items = [
-        { label: '后退', icon: 'fa-solid fa-arrow-left', disabled: !canBack, action: function() { var b = $('btn-back'); if (b) b.click(); } },
-        { label: '前进', icon: 'fa-solid fa-arrow-right', disabled: !canForward, action: function() { var b = $('btn-forward'); if (b) b.click(); } },
-        { label: '刷新', icon: 'fa-solid fa-rotate', disabled: false, action: function() { var b = $('refresh-btn'); if (b) b.click(); } },
+        { label: '后退', icon: 'fa-solid fa-arrow-left', disabled: !canBack, action: function() { if (currentPage === 'xxt') { var xwv = getXxtWebview(); if (xwv && xwv.canGoBack()) xwv.goBack(); } else { goBack(); } } },
+        { label: '前进', icon: 'fa-solid fa-arrow-right', disabled: !canForward, action: function() { if (currentPage === 'xxt') { var xwv = getXxtWebview(); if (xwv && xwv.canGoForward()) xwv.goForward(); } else { goForward(); } } },
+        { label: '刷新', icon: 'fa-solid fa-rotate', disabled: false, action: function() { if (currentPage === 'xxt') { var xwv = getXxtWebview(); if (xwv) xwv.reload(); } else { var b = $('refresh-btn'); if (b) b.click(); } } },
         null
       ];
       var hasEditOps = selText || canPaste || canSelectAll;
