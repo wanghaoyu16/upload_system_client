@@ -951,6 +951,9 @@ if (!gotTheLock) {
             if (input.key === 'F9' && !input.control && !input.alt && !input.meta && !input.shift) {
                 mainWindow.webContents.send('xxt-tab-shortcut-triggered');
             }
+            if (input.key === 'F3' && !input.control && !input.alt && !input.meta && !input.shift) {
+                mainWindow.webContents.send('mmd-mini-toggle-triggered');
+            }
             if (input.key === 'F1' && !input.control && !input.alt && !input.meta && !input.shift) {
                 mainWindow.webContents.send('chaoxing-skin-shortcut-triggered');
             }

@@ -2677,7 +2677,9 @@ function init(container) {
   initMMDAI();
   if (localStorage.getItem('mmd_last_applied_type') === 'ai_images') {
     var lastAiId = localStorage.getItem('mmd_last_ai_project_id');
-    if (lastAiId) setTimeout(function() { restoreLastAIProject(Number(lastAiId)); }, 150);
+    if (lastAiId) setTimeout(function() {
+      if (!window.mmdMiniViewerExplicitToggle) restoreLastAIProject(Number(lastAiId));
+    }, 150);
   }
 }
 
@@ -2858,7 +2860,7 @@ async function preloadModels() {
   } catch(e) { console.error('[MMD] preloadModels error:', e); }
 }
 
-window.MMDViewer = { init, dispose, openFilePicker, preloadModels };
+window.MMDViewer = { init, dispose, openFilePicker, preloadModels, toggleMiniViewer };
 window._mmdGetActiveModel = function() { return activeAppliedModelData || activeModelData; };
 window._mmdGetAllModels = function() { return savedModels || []; };
 
@@ -3115,7 +3117,9 @@ async function loadThumbImage(projId, idx, el) {
 let aiMiniViewer = null;
 
 function disposeImageMiniViewer() {
-  if (aiMiniViewer) { aiMiniViewer.remove(); aiMiniViewer = null; }
+  var leftovers = document.querySelectorAll('#mmdai-mini-viewer');
+  for (var i = 0; i < leftovers.length; i++) leftovers[i].remove();
+  aiMiniViewer = null;
 }
 
 async function createImageMiniViewer(project) {
@@ -3131,6 +3135,7 @@ async function createImageMiniViewer(project) {
     if (!b64) return;
     var w = project.miniW || 300;
     var h = project.miniH || 300;
+    disposeImageMiniViewer();
     aiMiniViewer = document.createElement('div');
     aiMiniViewer.id = 'mmdai-mini-viewer';
     aiMiniViewer.dataset.mmdaiProjectId = project.id;
@@ -3143,23 +3148,58 @@ async function createImageMiniViewer(project) {
         if (aiMiniViewer) aiMiniViewer.style.opacity = (cfg.miniOpacity !== undefined ? cfg.miniOpacity : 1.0);
       });
     }
-    var img = aiMiniViewer.querySelector('img');
+    var viewer = aiMiniViewer;
+    var img = viewer.querySelector('img');
     if (img) img.addEventListener('dragstart', function(e) { e.preventDefault(); });
-    aiMiniViewer.querySelector('.mmdai-mini-close').addEventListener('click', disposeImageMiniViewer);
+    viewer.querySelector('.mmdai-mini-close').addEventListener('click', disposeImageMiniViewer);
     var startX, startY, ox, oy, dragging = false;
-    aiMiniViewer.addEventListener('mousedown', function(e) {
+    viewer.addEventListener('mousedown', function(e) {
       if (e.target.tagName === 'BUTTON') return;
       dragging = true; startX = e.clientX; startY = e.clientY;
-      var r = aiMiniViewer.getBoundingClientRect();
+      var r = viewer.getBoundingClientRect();
       ox = r.left; oy = r.top;
     });
     window.addEventListener('mousemove', function(ev) {
-      if (!dragging || !aiMiniViewer) return;
-      aiMiniViewer.style.right = 'auto'; aiMiniViewer.style.bottom = 'auto';
-      aiMiniViewer.style.left = Math.max(0, Math.min(ox + ev.clientX - startX, window.innerWidth - w)) + 'px';
-      aiMiniViewer.style.top = Math.max(0, Math.min(oy + ev.clientY - startY, window.innerHeight - h)) + 'px';
+      if (!dragging || !viewer) return;
+      viewer.style.right = 'auto'; viewer.style.bottom = 'auto';
+      viewer.style.left = Math.max(0, Math.min(ox + ev.clientX - startX, window.innerWidth - w)) + 'px';
+      viewer.style.top = Math.max(0, Math.min(oy + ev.clientY - startY, window.innerHeight - h)) + 'px';
     });
     window.addEventListener('mouseup', function() { dragging = false; });
+  } catch(e) {}
+}
+
+async function toggleMiniViewer() {
+  window.mmdMiniViewerExplicitToggle = true;
+  var existing = document.getElementById('mmd-mini-viewer') || document.getElementById('mmdai-mini-viewer');
+  if (existing) {
+    if (typeof disposeMiniViewer === 'function') disposeMiniViewer();
+    disposeImageMiniViewer();
+    window.mmdMiniViewerExplicitToggle = false;
+    return;
+  }
+  if (!initialized) {
+    var mmdPage = document.getElementById('page-mmd');
+    if (!mmdPage) return;
+    init(mmdPage);
+  }
+  try {
+    var projs = await window.electronAPI.mmdAiGetProjects();
+    if (!projs || !projs.length) {
+      await window.electronAPI.mmdAiEnsureDefault();
+      projs = await window.electronAPI.mmdAiGetProjects();
+    }
+    if (!projs || !projs.length) return;
+    var lastId = Number(localStorage.getItem('mmd_last_ai_project_id'));
+    var project = null;
+    if (lastId) project = projs.find(function(x) { return x.id === lastId; });
+    if (!project) project = projs[0];
+    if (!project) return;
+    if (!project.imageFiles || !project.imageFiles.length) {
+      if (typeof mmdToast === 'function') mmdToast('该图片项目暂无图片，请先导入图片', 'warning');
+      return;
+    }
+    createImageMiniViewer(project);
   } catch(e) {}
 }
 

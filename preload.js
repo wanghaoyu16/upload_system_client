@@ -161,6 +161,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     setChaoxingSkinShortcutEnabled: (enable) => ipcRenderer.send('set-chaoxing-skin-shortcut-enabled', enable),
     onXxtTabShortcutTriggered: (callback) => ipcRenderer.on('xxt-tab-shortcut-triggered', () => callback()),
     onChaoxingSkinShortcutTriggered: (callback) => ipcRenderer.on('chaoxing-skin-shortcut-triggered', () => callback()),
+    onMmdMiniToggleTriggered: (callback) => ipcRenderer.on('mmd-mini-toggle-triggered', () => callback()),
     setCustomUA: (ua) => ipcRenderer.send('set-custom-ua', ua),
     relaunchApp: () => ipcRenderer.send('relaunch-app'),
     copyToClipboard: (text) => ipcRenderer.send('copy-to-clipboard', text),

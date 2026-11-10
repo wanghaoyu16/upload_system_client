@@ -5531,6 +5531,14 @@
       });
     }
 
+    var mmdMiniShortcutToggle = $('mmd-mini-shortcut-toggle');
+    if (mmdMiniShortcutToggle) {
+      mmdMiniShortcutToggle.checked = localStorage.getItem('mmdMiniShortcutEnabled') !== 'false';
+      mmdMiniShortcutToggle.addEventListener('change', function() {
+        localStorage.setItem('mmdMiniShortcutEnabled', this.checked);
+      });
+    }
+
     var devToolsBtn = $('open-devtools-btn');
     if (devToolsBtn && API && API.openDevTools) {
       devToolsBtn.addEventListener('click', function() {
@@ -5659,6 +5667,14 @@
           API.setChaoxingSkin(enabled);
         }
         showToast('学习通皮肤', enabled ? '已启用' : '已禁用', 'info', 2000);
+      });
+    }
+
+    if (API && API.onMmdMiniToggleTriggered) {
+      API.onMmdMiniToggleTriggered(function() {
+        if (localStorage.getItem('mmdMiniShortcutEnabled') === 'false') return;
+        if (typeof window.MMDViewer === 'undefined' || typeof window.MMDViewer.toggleMiniViewer !== 'function') return;
+        window.MMDViewer.toggleMiniViewer();
       });
     }
 
