@@ -1,6 +1,6 @@
 {
   "name": "upload-system-client",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "作业上传系统客户端",
   "main": "main.js",
   "scripts": {
