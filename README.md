@@ -3,18 +3,41 @@
 一个基于 **Electron + Python Flask** 的作业提交与管理客户端，支持多后端自动切换、学习通聊天集成、AI 辅助答题、MMD 模型预览、内置浏览器与 Python 编辑器等功能。
 
 ---
+## 应用内截图
+### 首页
+<img src="markdown_img/home.png" alt="默认首页" width="600">
+
+### 个性化
+<img src="markdown_img/a1.png" alt="个性化" width="600">
+
+### MMD/图片 与 AI配置项
+<img src="markdown_img/a2.png" alt="MMD/图片与AI配置菜单" width="600">
+
+### 设置
+<img src="markdown_img/a3.png" alt="设置页面" width="600">
+<img src="markdown_img/a4.png" alt="浏览器UA配置" width="600">
+
+### 模仿学习通APP主题与AI功能
+<img src="markdown_img/a5.png" alt="仿学习通APP主题" width="600">
+
+### Python 编辑器
+<img src="markdown_img/a6.png" alt="Python 编辑器" width="600">
+
+
+---
 
 ## 功能特性
 
 - **多后端自动切换**：按 `backends` 列表自动探测可用服务器，优先局域网，失败后回退公网
 - **作业 / 素材树管理**：上传、下载、重命名、移动、权限设置、压缩包下载、帮我交作业
-- **学习通集成**：独立登录窗口、免登浏览、环信聊天、好友、窗口抖动、语音通话（实验性）
-- **AI 辅助答题**：基于 OpenAI 兼容接口的对话，支持页面元素工具调用（MMD 模型 / 浏览器 / 学习通）
-- **MMD 模型预览**：支持 PMX / PMD / GLB / GLTF / OBJ / VRM，可配置描边、光晕、贴图与动画
+- **学习通集成**：独立登录窗口、免登浏览、环信聊天、好友、窗口抖动、语音通话(实验性)
+- **AI 辅助答题**：基于 OpenAI 兼容接口的对话，支持页面元素工具调用(MMD 模型 / 浏览器 / 学习通)
+- **MMD 模型预览**：支持 PMX(稳定) / PMD(稳定) / GLB / GLTF / OBJ / VRM，可配置描边、光晕、贴图与动画
 - **内置浏览器**：多标签、历史记录、透明背景、自定义 UA
 - **Python 编辑器 / REPL**：内置运行、交互式命令行、多标签编辑
 - **个性化**：主题色、深色模式、自定义背景 / 启动动画 / 字体、毛玻璃、透明度、穿透点击
-- **实验性功能**：开发者控制面板、窗口舞蹈 / 弹跳彩蛋、语音通话窗口
+- **实验性功能**：开发者控制面板、语音通话窗口
+- **彩蛋**：anghaoyu16://dance  与  anghaoyu16://windows
 
 ---
 
@@ -293,3 +316,9 @@ pip install flask openpyxl werkzeug
 ## License
 
 MIT © anghaoyu16
+
+## 免责声明 / Disclaimer
+
+- 本项目为个人学习与研究项目，与学习通、环信、Agora、OpenAI 等第三方服务无官方关联
+- 使用本项目访问第三方服务时，请自行遵守对应平台的服务条款与所在学校规定
+- 请勿将本项目用于违反学术诚信或平台规则的用途

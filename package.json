@@ -24,7 +24,11 @@
       "!node_modules/.cache",
       "!dist",
       "!server_python",
-      "!config.example.json"
+      "!config.example.json",
+      "!markdown_img",
+      "!markdown_img/**/*",
+      "!app_github_old",
+      "!app_github_old/**/*"
     ],
     "win": {
       "target": "nsis",
