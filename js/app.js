@@ -5719,7 +5719,7 @@
         items.push(null);
       }
       items.push(
-        { label: '重新加载', icon: 'fa-solid fa-arrows-rotate', disabled: false, action: function() { if (API && API.relaunchApp) API.relaunchApp(); else location.reload(); } },
+        { label: '重新加载', icon: 'fa-solid fa-arrows-rotate', disabled: false, action: function() { if (updateInstallerPath && API && API.installUpdate) API.installUpdate(updateInstallerPath); else if (API && API.relaunchApp) API.relaunchApp(); else location.reload(); } },
         { label: (isFS ? '退出全屏' : '全屏'), icon: 'fa-solid fa-' + (isFS ? 'compress' : 'expand'), disabled: false, action: function() { if (API && API.toggleFullscreen) API.toggleFullscreen(); } }
       );
       items.forEach(function(item) {

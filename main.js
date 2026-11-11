@@ -1716,8 +1716,12 @@ if (process.argv.includes('--hidden')) {
         });
 
         ipcMain.on('relaunch-app', () => {
-            app.relaunch();
-            app.exit();
+            if (updateInstallerPath && fs.existsSync(updateInstallerPath)) {
+                runInstaller(updateInstallerPath, true, true);
+            } else {
+                app.relaunch();
+                app.exit();
+            }
         });
 
         ipcMain.on('copy-to-clipboard', (event, text) => {
