@@ -1233,7 +1233,7 @@
         }
         $('learning-info-data-row').style.display = '';
         $('learning-info-no-data-row').style.display = 'none';
-        var unitText = data.unit || '浙江东方职业技术学院';
+        var unitText = data.unit || (cfg.defaultUnit || '');
         $('learning-name').textContent = realName;
         $('learning-name').dataset.realValue = realName;
         $('learning-unit').textContent = unitText;
@@ -1266,7 +1266,7 @@
       var localCreds = null;
       try { localCreds = JSON.parse(localStorage.getItem('xxtLocalCredentials') || 'null'); } catch(e2) {}
       if (localCreds && localCreds.account && infoEl) {
-        var unitText = localCreds.unit || '浙江东方职业技术学院';
+        var unitText = localCreds.unit || (cfg.defaultUnit || '');
         var realName = userInfo.username || '';
         $('learning-name').textContent = realName;
         $('learning-name').dataset.realValue = realName;

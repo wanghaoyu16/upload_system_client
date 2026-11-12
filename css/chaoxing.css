@@ -290,8 +290,8 @@ svg { display: inline-block !important; }
 }
 
 .chaoxing-skin #sidebar .cx-avatar .cx-avatar-img {
-  height: 26px;
-  width: 26px;
+  height: 28px;
+  width: 28px;
 }
 
 .chaoxing-skin #sidebar .cx-avatar .cx-avatar-img img {
@@ -306,7 +306,7 @@ svg { display: inline-block !important; }
 }
 
 .chaoxing-skin #sidebar .cx-avatar .cx-avatar-name {
-  width: calc(100% - 32px);
+  width: calc(100% - 34px);
   font-weight: 400;
   font-size: 12px;
   margin-left: 6px;
@@ -466,7 +466,7 @@ svg { display: inline-block !important; }
 
 /* 网络覆盖层（无法连接服务器）置于侧边栏之下，避免遮挡学习通侧边栏 */
 .chaoxing-skin #network-overlay {
-  top: 44px;
+  top: 45px;
   z-index: 9;
 }
 
