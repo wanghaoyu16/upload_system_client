@@ -7941,6 +7941,7 @@
     webview.id = 'xxt-webview-' + tab.id;
     webview.setAttribute('allowpopups', '');
     webview.setAttribute('partition', 'persist:xxt');
+    webview.setAttribute('useragent', XxtUA);
     webview.setAttribute('webpreferences', 'webSecurity=no');
     webview.style.cssText = 'width:100%;height:100%;position:absolute;top:0;left:0;display:none;';
     tab.webview = webview;
@@ -7986,6 +7987,7 @@
     webview.id = 'xxt-webview-' + tab.id;
     webview.setAttribute('allowpopups', '');
     webview.setAttribute('partition', 'persist:xxt');
+    webview.setAttribute('useragent', XxtUA);
     if (xxtPreloadPath) {
       webview.setAttribute('preload', 'file:///' + xxtPreloadPath.replace(/\\/g, '/'));
     }
