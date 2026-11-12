@@ -549,11 +549,26 @@ svg { display: inline-block !important; }
   padding-left: 12px;
 }
 
-/* 学习通皮肤：选中标签关闭按钮始终显示、调大并留右侧间距 */
-.chaoxing-skin .xxt-tab.active .tab-close {
-  opacity: 0.6;
+/* 学习通皮肤：关闭按钮调大并留右侧间距（避免贴住边缘） */
+.chaoxing-skin .xxt-tab .tab-close {
   width: 20px;
   height: 20px;
   font-size: 18px;
   margin-right: 8px;
+}
+
+/* 学习通皮肤：选中标签关闭按钮始终显示 */
+.chaoxing-skin .xxt-tab.active .tab-close {
+  opacity: 0.6;
+}
+
+/* 学习通皮肤：禁用切换侧边栏页面的淡入动画 */
+.chaoxing-skin .page.active .card,
+.chaoxing-skin .page.active .announcement-card,
+.chaoxing-skin .page.active .learning-info-card,
+.chaoxing-skin .page.active .xxt-placeholder,
+.chaoxing-skin .page.active .browser-container,
+.chaoxing-skin .page.active .python-editor-panel,
+.chaoxing-skin .page.active .python-terminal-panel {
+  animation: none !important;
 }
