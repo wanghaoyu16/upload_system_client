@@ -396,7 +396,7 @@ body { -webkit-app-region: drag; margin: 0; padding: 0; height: 100%; width: 100
   var xxtUrls = { class:'https://mooc2-ans.chaoxing.com/visit/interaction', note:'https://groupyd2.chaoxing.com/pc/activity/activityList', cloud:'https://pan-yz.chaoxing.com/pcuserpan/index' };
   var targetTab = '课程';
 
-  var pageMap = { home:'home', message:'home', note:'xxt', class:'xxt', cloud:'xxt', group:'home', appearance:'appearance', setting:'settings' };
+  var pageMap = { home:'home', message:'message', note:'xxt', class:'xxt', cloud:'xxt', group:'home', appearance:'appearance', setting:'settings' };
 
   function nav(page) {
     if (page === 'xxt') {
@@ -410,6 +410,11 @@ body { -webkit-app-region: drag; margin: 0; padding: 0; height: 100%; width: 100
     xxtView.style.visibility = 'hidden';
     xxtView.style.position = 'absolute';
     iframe.style.display = '';
+    if (page === 'message') {
+      // 消息：直接跳转学习通页面
+      try { iframe.contentWindow.switchPage('xxt'); } catch(e) {}
+      return;
+    }
     try { iframe.contentWindow.switchPage(page); } catch(e) {}
   }
 

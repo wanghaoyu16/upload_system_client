@@ -8043,8 +8043,10 @@
     });
     webview.addEventListener('page-favicon-updated', (e) => {
       if (e.favicons && e.favicons.length > 0) {
+        // 学习通网站 favicon.ico 普遍 404，优先取非 .ico 的有效图标，避免无效请求
+        var fav = e.favicons.find(function(u) { return !/\.ico(\?|#|$)/i.test(u); }) || '';
         const tab = xxtTabs.find(t => t.id === tabId);
-        if (tab) { tab.favicon = e.favicons[0]; saveXxtTabs(); renderXxtTabs(); }
+        if (tab && fav) { tab.favicon = fav; saveXxtTabs(); renderXxtTabs(); }
       }
     });
     webview.addEventListener('will-navigate', (e) => {
